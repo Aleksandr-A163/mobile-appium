@@ -1,6 +1,6 @@
 package ru.otus.mobile.tests;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import org.junit.jupiter.api.Test;
 import ru.otus.mobile.config.TestUsersConfig;
 import ru.otus.mobile.data.TestDataPreparer;
@@ -19,19 +19,21 @@ class WishlistTest {
 
   @Test
   void shouldCreateWishlist() {
+    String wishlistTitle = "Birthday wishlist " + System.currentTimeMillis();
+
     testDataPreparer.prepare(TestDataScenario.WISHLIST_CREATE);
     loginPage.login(usersConfig.wishlistCreateUser());
     wishlistPage.openCreateWishlistForm();
-    wishlistPage.createWishlist("Birthday wishlist");
-    wishlistPage.shouldContainWishlist("Birthday wishlist");
+    wishlistPage.createWishlist(wishlistTitle);
+    wishlistPage.shouldContainWishlist(wishlistTitle);
   }
 
   @Test
   void shouldEditWishlist() {
     testDataPreparer.prepare(TestDataScenario.WISHLIST_EDIT);
     loginPage.login(usersConfig.wishlistEditUser());
-    wishlistPage.openWishlist("Travel wishlist");
-    wishlistPage.editWishlist("Updated travel wishlist");
-    wishlistPage.shouldContainWishlist("Updated travel wishlist");
+    wishlistPage.openWishlist("Birthday wishlist");
+    wishlistPage.editWishlist("Updated birthday wishlist");
+    wishlistPage.shouldContainWishlist("Updated birthday wishlist");
   }
 }

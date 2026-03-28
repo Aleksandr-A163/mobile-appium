@@ -1,7 +1,7 @@
 package ru.otus.mobile.config;
 
+import com.google.inject.Singleton;
 import java.util.Properties;
-import javax.inject.Singleton;
 
 @Singleton
 public class TestUsersConfig {

@@ -1,10 +1,10 @@
 package ru.otus.mobile.data;
 
+import com.google.inject.Singleton;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.inject.Singleton;
 
 @Singleton
 public class TestDataPreparer {

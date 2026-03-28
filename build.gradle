@@ -53,12 +53,14 @@ compileTestJava.dependsOn(tasks.spotlessApply)
 
 test {
   useJUnitPlatform()
+
   systemProperty 'file.encoding', 'UTF-8'
   systemProperty 'databaseUrl', System.getProperty('databaseUrl', 'jdbc:postgresql://sql.otus.kartushin.su:5432/wishlist')
   systemProperty 'databaseUsername', System.getProperty('databaseUsername', '')
   systemProperty 'databasePassword', System.getProperty('databasePassword', '')
-  systemProperty 'app.download.url', System.getProperty('app.download.url', 'http://127.0.0.1:8089/download/wishlist.apk')
   systemProperty 'appium.url', System.getProperty('appium.url', 'http://127.0.0.1:4723')
+  systemProperty 'app.download.url', System.getProperty('app.download.url', 'http://wiremock:8080/download/wishlist.apk')
+
   testLogging {
     events 'passed', 'skipped', 'failed'
     exceptionFormat 'full'

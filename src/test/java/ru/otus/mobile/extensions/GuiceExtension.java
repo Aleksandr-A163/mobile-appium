@@ -14,15 +14,22 @@ public class GuiceExtension implements BeforeAllCallback, BeforeEachCallback {
 
   @Override
   public void beforeAll(ExtensionContext context) {
-    context
-        .getRoot()
-        .getStore(NAMESPACE)
-        .getOrComputeIfAbsent("injector", key -> Guice.createInjector(new TestModule()));
+    getOrCreateInjector(context);
   }
 
   @Override
   public void beforeEach(ExtensionContext context) {
-    Injector injector = context.getRoot().getStore(NAMESPACE).get("injector", Injector.class);
-    injector.injectMembers(context.getRequiredTestInstance());
+    Injector injector = getOrCreateInjector(context);
+    Object testInstance = context.getRequiredTestInstance();
+    injector.injectMembers(testInstance);
+    System.out.println("GUICE injected into: " + testInstance.getClass().getSimpleName());
+  }
+
+  private Injector getOrCreateInjector(ExtensionContext context) {
+    return context
+        .getRoot()
+        .getStore(NAMESPACE)
+        .getOrComputeIfAbsent(
+            "injector", key -> Guice.createInjector(new TestModule()), Injector.class);
   }
 }
