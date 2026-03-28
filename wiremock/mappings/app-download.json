@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/download/wishlist.apk"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/vnd.android.package-archive"
+    },
+    "bodyFileName": "wishlist.apk"
+  }
+}

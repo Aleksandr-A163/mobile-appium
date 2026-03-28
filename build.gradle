@@ -1,0 +1,67 @@
+plugins {
+  id 'java'
+  alias(libs.plugins.spotless)
+}
+
+group = 'ru.otus.mobile'
+version = '2.0.0'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation libs.selenide
+  implementation libs.selenide.appium
+  implementation libs.appium.java.client
+  implementation libs.guice
+  implementation libs.javax.inject
+  implementation libs.slf4j.api
+
+  testImplementation platform(libs.junit.bom)
+  testImplementation libs.junit.jupiter
+  testImplementation libs.assertj
+  testImplementation libs.postgresql
+
+  testRuntimeOnly libs.logback
+}
+
+spotless {
+  java {
+    target 'src/*/java/**/*.java'
+    googleJavaFormat('1.22.0')
+    removeUnusedImports()
+    trimTrailingWhitespace()
+    endWithNewline()
+  }
+  format 'misc', {
+    target '*.gradle', '*.md', '.gitignore', 'src/*/resources/**/*.properties', '*.yml', '*.toml'
+    trimTrailingWhitespace()
+    indentWithSpaces(2)
+    endWithNewline()
+  }
+}
+
+compileJava.dependsOn(tasks.spotlessApply)
+compileTestJava.dependsOn(tasks.spotlessApply)
+
+test {
+  useJUnitPlatform()
+  systemProperty 'file.encoding', 'UTF-8'
+  systemProperty 'databaseUrl', System.getProperty('databaseUrl', 'jdbc:postgresql://sql.otus.kartushin.su:5432/wishlist')
+  systemProperty 'databaseUsername', System.getProperty('databaseUsername', '')
+  systemProperty 'databasePassword', System.getProperty('databasePassword', '')
+  systemProperty 'app.download.url', System.getProperty('app.download.url', 'http://127.0.0.1:8089/download/wishlist.apk')
+  systemProperty 'appium.url', System.getProperty('appium.url', 'http://127.0.0.1:4723')
+  testLogging {
+    events 'passed', 'skipped', 'failed'
+    exceptionFormat 'full'
+    showStandardStreams = true
+  }
+}
