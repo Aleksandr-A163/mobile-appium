@@ -2,9 +2,6 @@
 .gradle/
 build/
 out/
-gradlew
-gradlew.bat
-gradle/wrapper/
 
 # IntelliJ IDEA
 .idea/
@@ -20,13 +17,20 @@ Thumbs.db
 # VS Code
 .vscode/
 
-# Ignore test reports
+# Local reports
 build/reports/
 
-# But keep source folders and config files
+# Keep project sources and config
 !src/
 !src/**/*
+!gradle/
+!gradle/**/*
+!gradlew
+!gradlew.bat
 !build.gradle
 !settings.gradle
+!gradle.properties
+!docker-compose.yml
 !README.md
-!traces/
+!wiremock/
+!wiremock/**/*
