@@ -24,7 +24,7 @@ class GiftTest {
     String giftTitle = "Headphones";
     String updatedGiftTitle = "Wireless headphones";
 
-    testDataPreparer.prepare(TestDataScenario.GIFT_CREATE_EDIT);
+    testDataPreparer.prepare(TestDataScenario.GIFT_CREATE);
     loginPage.login(usersConfig.giftUser());
 
     wishlistPage.openAnyWishlist();
@@ -37,7 +37,7 @@ class GiftTest {
 
   @Test
   void shouldFixGiftPrice() {
-    testDataPreparer.prepare(TestDataScenario.GIFT_RESERVATION);
+    testDataPreparer.prepare(TestDataScenario.GIFT_EDIT);
     loginPage.login(usersConfig.giftEditUser());
 
     wishlistPage.openAnyWishlist();

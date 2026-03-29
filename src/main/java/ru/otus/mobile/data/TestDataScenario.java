@@ -55,7 +55,7 @@ public enum TestDataScenario {
       WHERE username = 'UserEditor';
       """),
 
-  GIFT_CREATE_EDIT(
+  GIFT_CREATE(
       """
       DELETE FROM gifts
       WHERE wish_id IN (
@@ -81,7 +81,7 @@ public enum TestDataScenario {
       WHERE username = 'slowbroo';
       """),
 
-  GIFT_RESERVATION(
+  GIFT_EDIT(
       """
       DELETE FROM gifts
       WHERE wish_id IN (

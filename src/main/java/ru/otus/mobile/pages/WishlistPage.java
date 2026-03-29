@@ -32,15 +32,6 @@ public class WishlistPage extends AbsBasePage {
         .should(exist);
   }
 
-  public void openWishlist(String title) {
-    $(AppiumBy.androidUIAutomator(
-            "new UiScrollable(new UiSelector().resourceId(\"ru.otus.wishlist:id/wishlists\"))"
-                + ".scrollIntoView(new UiSelector().text(\""
-                + title
-                + "\"))"))
-        .should(exist)
-        .click();
-  }
 
   public void editAnyWishlistExcept(String forbiddenTitle, String newTitle) {
     $(AppiumBy.id("ru.otus.wishlist:id/wishlists")).should(exist);
@@ -71,19 +62,6 @@ public class WishlistPage extends AbsBasePage {
     throw new AssertionError("Не найден ни один список желаний, отличный от: " + forbiddenTitle);
   }
 
-  public void editOpenedWishlist(String newTitle) {
-    $(AppiumBy.id("ru.otus.wishlist:id/edit_button")).should(exist).click();
-
-    SelenideElement titleInput = $(AppiumBy.id("ru.otus.wishlist:id/title_input"));
-    titleInput.should(exist).clear();
-    titleInput.setValue(newTitle);
-
-    SelenideElement descriptionInput = $(AppiumBy.id("ru.otus.wishlist:id/description_input"));
-    descriptionInput.should(exist).clear();
-    descriptionInput.setValue("Updated by autotest");
-
-    $(AppiumBy.id("ru.otus.wishlist:id/save_button")).should(exist).click();
-  }
 
   public void openAnyWishlist() {
     $(AppiumBy.id("ru.otus.wishlist:id/mine_menu")).should(exist).click();
