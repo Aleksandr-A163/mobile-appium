@@ -20,8 +20,8 @@ public class TestUsersConfig {
     return user("gift");
   }
 
-  public TestUser reservationUser() {
-    return user("reservation");
+  public TestUser giftEditUser() {
+    return user("gift.edit");
   }
 
   private TestUser user(String prefix) {

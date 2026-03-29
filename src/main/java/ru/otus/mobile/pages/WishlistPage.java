@@ -86,6 +86,8 @@ public class WishlistPage extends AbsBasePage {
   }
 
   public void openAnyWishlist() {
+    $(AppiumBy.id("ru.otus.wishlist:id/mine_menu")).should(exist).click();
+    $(AppiumBy.id("ru.otus.wishlist:id/wishlists")).should(exist);
     $$(AppiumBy.id("ru.otus.wishlist:id/wishlist_item")).first().should(exist).click();
   }
 }
