@@ -38,7 +38,7 @@ class GiftTest {
   @Test
   void shouldFixGiftPrice() {
     testDataPreparer.prepare(TestDataScenario.GIFT_RESERVATION);
-    loginPage.login(usersConfig.reservationUser());
+    loginPage.login(usersConfig.giftEditUser());
 
     wishlistPage.openAnyWishlist();
 

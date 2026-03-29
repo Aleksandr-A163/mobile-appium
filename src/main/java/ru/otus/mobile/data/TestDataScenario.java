@@ -33,7 +33,7 @@ public enum TestDataScenario {
           WHERE user_id IN (
               SELECT id
               FROM users
-              WHERE username = 'doshick'
+              WHERE username = 'UserEditor'
           )
       );
 
@@ -41,18 +41,18 @@ public enum TestDataScenario {
       WHERE user_id IN (
           SELECT id
           FROM users
-          WHERE username = 'doshick'
+          WHERE username = 'UserEditor'
       );
 
       INSERT INTO wishlists (id, user_id, description, title)
       SELECT '%s'::uuid, id, 'Travel wishlist', 'Travel wishlist'
       FROM users
-      WHERE username = 'doshick';
+      WHERE username = 'UserEditor';
 
       INSERT INTO wishlists (id, user_id, description, title)
       SELECT '%s'::uuid, id, 'testingData', 'testingData'
       FROM users
-      WHERE username = 'doshick';
+      WHERE username = 'UserEditor';
       """),
 
   GIFT_CREATE_EDIT(

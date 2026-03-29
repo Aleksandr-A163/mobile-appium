@@ -77,4 +77,3 @@ docker compose up -d
 ## Подготовка данных
 
 Перед выполнением тестов состояние в БД подготавливается автоматически через `TestDataPreparer` и `TestDataScenario`.
-
