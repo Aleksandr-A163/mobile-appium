@@ -32,8 +32,10 @@ class WishlistTest {
   void shouldEditWishlist() {
     testDataPreparer.prepare(TestDataScenario.WISHLIST_EDIT);
     loginPage.login(usersConfig.wishlistEditUser());
-    wishlistPage.openWishlist("Birthday wishlist");
-    wishlistPage.editWishlist("Updated birthday wishlist");
-    wishlistPage.shouldContainWishlist("Updated birthday wishlist");
+
+    String updatedTitle = "Updated travel wishlist";
+
+    wishlistPage.editAnyWishlistExcept(updatedTitle, updatedTitle);
+    wishlistPage.shouldContainWishlist(updatedTitle);
   }
 }
