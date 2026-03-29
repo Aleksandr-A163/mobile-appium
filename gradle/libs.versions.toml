@@ -1,5 +1,4 @@
 [versions]
-java = "17"
 junit = "5.10.2"
 selenide = "7.2.3"
 appium = "9.2.3"
