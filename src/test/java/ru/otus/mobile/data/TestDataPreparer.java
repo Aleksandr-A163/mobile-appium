@@ -1,6 +1,5 @@
 package ru.otus.mobile.data;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,24 +9,19 @@ import java.sql.Statement;
 @Singleton
 public class TestDataPreparer {
 
-  private final DatabaseConfig databaseConfig;
-
-  @Inject
-  public TestDataPreparer(DatabaseConfig databaseConfig) {
-    this.databaseConfig = databaseConfig;
-  }
-
   public void prepare(TestDataScenario scenario) {
-    System.out.println("databaseUrl = " + databaseConfig.url());
-    System.out.println("databaseUsername = " + databaseConfig.username());
-    System.out.println("databasePassword = " + databaseConfig.password());
+    String databaseUrl =
+        System.getProperty("databaseUrl", "jdbc:postgresql://sql.otus.kartushin.su:5432/wishlist");
+    String databaseUsername = System.getProperty("databaseUsername", "");
+    String databasePassword = System.getProperty("databasePassword", "");
+
+    System.out.println("databaseUrl = " + databaseUrl);
+    System.out.println("databaseUsername = " + databaseUsername);
+    System.out.println("databasePassword = " + databasePassword);
     System.out.println("scenario = " + scenario.name());
 
     try (Connection connection =
-            DriverManager.getConnection(
-                databaseConfig.url(),
-                databaseConfig.username(),
-                databaseConfig.password());
+            DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword);
         Statement statement = connection.createStatement()) {
 
       connection.setAutoCommit(false);
@@ -35,13 +29,14 @@ public class TestDataPreparer {
       try {
         statement.execute(scenario.sql());
         connection.commit();
-      } catch (Exception e) {
+      } catch (Exception exception) {
         connection.rollback();
-        throw e;
+        throw exception;
       }
 
-    } catch (SQLException e) {
-      throw new RuntimeException("Не удалось подготовить данные для сценария: " + scenario.name(), e);
+    } catch (SQLException exception) {
+      throw new IllegalStateException(
+          "Cannot prepare test data for scenario: " + scenario, exception);
     }
   }
 }

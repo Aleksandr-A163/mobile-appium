@@ -1,136 +1,155 @@
 package ru.otus.mobile.data;
 
+import java.util.UUID;
+
 public enum TestDataScenario {
-  WISHLIST_CREATE("""
-      -- Очистка данных пользователя для сценария создания wishlist
-      -- ЗАМЕНИ user_id / username / email на реальные поля вашей БД
-
+  WISHLIST_CREATE(
+      """
       DELETE FROM gifts
-      WHERE wishlist_id IN (
+      WHERE wish_id IN (
           SELECT id
           FROM wishlists
-          WHERE owner_id = (
-              SELECT id FROM users WHERE username = 'wishlist_create_user'
-          )
-      );
-
-      DELETE FROM wishlists
-      WHERE owner_id = (
-          SELECT id FROM users WHERE username = 'wishlist_create_user'
-      );
-      """),
-
-  WISHLIST_EDIT("""
-      -- Полный reset wishlist для пользователя редактирования
-
-      DELETE FROM gifts
-      WHERE wishlist_id IN (
-          SELECT id
-          FROM wishlists
-          WHERE owner_id = (
-              SELECT id FROM users WHERE username = 'wishlist_edit_user'
-          )
-      );
-
-      DELETE FROM wishlists
-      WHERE owner_id = (
-          SELECT id FROM users WHERE username = 'wishlist_edit_user'
-      );
-
-      INSERT INTO wishlists (id, owner_id, title, description)
-      VALUES (
-          nextval('wishlists_id_seq'),
-          (SELECT id FROM users WHERE username = 'wishlist_edit_user'),
-          'Travel wishlist',
-          'Created for edit test'
-      );
-
-      INSERT INTO wishlists (id, owner_id, title, description)
-      VALUES (
-          nextval('wishlists_id_seq'),
-          (SELECT id FROM users WHERE username = 'wishlist_edit_user'),
-          'testingData',
-          'Second wishlist for edit test'
-      );
-      """),
-
-  GIFT_CREATE_EDIT("""
-      -- У пользователя giftUser должен быть один стабильный wishlist без мусора
-
-      DELETE FROM gifts
-      WHERE wishlist_id IN (
-          SELECT id
-          FROM wishlists
-          WHERE owner_id = (
-              SELECT id FROM users WHERE username = 'gift_user'
-          )
-      );
-
-      DELETE FROM wishlists
-      WHERE owner_id = (
-          SELECT id FROM users WHERE username = 'gift_user'
-      );
-
-      INSERT INTO wishlists (id, owner_id, title, description)
-      VALUES (
-          nextval('wishlists_id_seq'),
-          (SELECT id FROM users WHERE username = 'gift_user'),
-          'Autotest wishlist',
-          'Wishlist for gift create/edit test'
-      );
-      """),
-
-  GIFT_RESERVATION("""
-      -- Для теста цены / резервации у пользователя должен быть один wishlist и один gift
-
-      DELETE FROM gifts
-      WHERE wishlist_id IN (
-          SELECT id
-          FROM wishlists
-          WHERE owner_id = (
-              SELECT id FROM users WHERE username = 'reservation_user'
-          )
-      );
-
-      DELETE FROM wishlists
-      WHERE owner_id = (
-          SELECT id FROM users WHERE username = 'reservation_user'
-      );
-
-      INSERT INTO wishlists (id, owner_id, title, description)
-      VALUES (
-          nextval('wishlists_id_seq'),
-          (SELECT id FROM users WHERE username = 'reservation_user'),
-          'Price test wishlist',
-          'Wishlist for price test'
-      );
-
-      INSERT INTO gifts (id, wishlist_id, title, description, price, reserved)
-      VALUES (
-          nextval('gifts_id_seq'),
-          (
+          WHERE user_id IN (
               SELECT id
-              FROM wishlists
-              WHERE owner_id = (
-                  SELECT id FROM users WHERE username = 'reservation_user'
-              )
-              ORDER BY id DESC
-              LIMIT 1
-          ),
-          'Autotest gift',
-          'Gift for price test',
+              FROM users
+              WHERE username = 'doshick'
+          )
+      );
+
+      DELETE FROM wishlists
+      WHERE user_id IN (
+          SELECT id
+          FROM users
+          WHERE username = 'doshick'
+      );
+      """),
+
+  WISHLIST_EDIT(
+      """
+      DELETE FROM gifts
+      WHERE wish_id IN (
+          SELECT id
+          FROM wishlists
+          WHERE user_id IN (
+              SELECT id
+              FROM users
+              WHERE username = 'doshick'
+          )
+      );
+
+      DELETE FROM wishlists
+      WHERE user_id IN (
+          SELECT id
+          FROM users
+          WHERE username = 'doshick'
+      );
+
+      INSERT INTO wishlists (id, user_id, description, title)
+      SELECT '%s'::uuid, id, 'Travel wishlist', 'Travel wishlist'
+      FROM users
+      WHERE username = 'doshick';
+
+      INSERT INTO wishlists (id, user_id, description, title)
+      SELECT '%s'::uuid, id, 'testingData', 'testingData'
+      FROM users
+      WHERE username = 'doshick';
+      """),
+
+  GIFT_CREATE_EDIT(
+      """
+      DELETE FROM gifts
+      WHERE wish_id IN (
+          SELECT id
+          FROM wishlists
+          WHERE user_id IN (
+              SELECT id
+              FROM users
+              WHERE username = 'slowbroo'
+          )
+      );
+
+      DELETE FROM wishlists
+      WHERE user_id IN (
+          SELECT id
+          FROM users
+          WHERE username = 'slowbroo'
+      );
+
+      INSERT INTO wishlists (id, user_id, description, title)
+      SELECT '%s'::uuid, id, 'Autotest wishlist', 'Autotest wishlist'
+      FROM users
+      WHERE username = 'slowbroo';
+      """),
+
+  GIFT_RESERVATION(
+      """
+      DELETE FROM gifts
+      WHERE wish_id IN (
+          SELECT id
+          FROM wishlists
+          WHERE user_id IN (
+              SELECT id
+              FROM users
+              WHERE username = 'UserEditor'
+          )
+      );
+
+      DELETE FROM wishlists
+      WHERE user_id IN (
+          SELECT id
+          FROM users
+          WHERE username = 'UserEditor'
+      );
+
+      INSERT INTO wishlists (id, user_id, description, title)
+      SELECT '%s'::uuid, id, 'Price test wishlist', 'testingData'
+      FROM users
+      WHERE username = 'UserEditor';
+
+      INSERT INTO gifts (id, wish_id, description, name, price, is_reserved)
+      SELECT
+          '%s'::uuid,
+          w.id,
+          'Пикасу и слоупок',
+          'Покемон',
           2000,
           false
-      );
+      FROM wishlists w
+      JOIN users u ON u.id = w.user_id
+      WHERE u.username = 'UserEditor'
+        AND w.title = 'testingData';
       """);
 
   private final String sql;
 
-  TestDataScenario(String sql) {
-    this.sql = sql;
+  TestDataScenario(String template) {
+    this.sql = formatSql(template);
   }
 
   public String sql() {
     return sql;
+  }
+
+  private static String formatSql(String template) {
+    int placeholders = countPlaceholders(template);
+    Object[] args = new Object[placeholders];
+
+    for (int i = 0; i < placeholders; i++) {
+      args[i] = UUID.randomUUID();
+    }
+
+    return template.formatted(args);
+  }
+
+  private static int countPlaceholders(String text) {
+    int count = 0;
+    int index = 0;
+
+    while ((index = text.indexOf("%s", index)) >= 0) {
+      count++;
+      index += 2;
+    }
+
+    return count;
   }
 }
