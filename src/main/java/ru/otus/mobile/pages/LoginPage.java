@@ -15,8 +15,7 @@ public class LoginPage extends AbsBasePage {
       $(AppiumBy.id("ru.otus.wishlist:id/username_text_input"));
   private final SelenideElement passwordInputField =
       $(AppiumBy.id("ru.otus.wishlist:id/password_text_input"));
-  private final SelenideElement loginButton =
-      $(AppiumBy.id("ru.otus.wishlist:id/log_in_button"));
+  private final SelenideElement loginButton = $(AppiumBy.id("ru.otus.wishlist:id/log_in_button"));
 
   public LoginPage checkOpened() {
     usernameInputField.shouldBe(visible);

@@ -34,8 +34,7 @@ public class TestUsersConfig {
 
   private TestUser user(String prefix) {
     return new TestUser(
-        properties.getProperty(prefix + ".username"),
-        properties.getProperty(prefix + ".password"));
+        properties.getProperty(prefix + ".username"), properties.getProperty(prefix + ".password"));
   }
 
   public record TestUser(String username, String password) {}
