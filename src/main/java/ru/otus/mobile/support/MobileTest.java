@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 import ru.otus.mobile.extensions.DriverExtension;
-import ru.otus.mobile.extensions.GuiceExtension;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith({GuiceExtension.class, DriverExtension.class})
+@ExtendWith(DriverExtension.class)
 public @interface MobileTest {}

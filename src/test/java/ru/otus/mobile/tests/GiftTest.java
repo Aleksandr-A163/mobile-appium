@@ -21,28 +21,35 @@ class GiftTest {
 
   @Test
   void shouldCreateAndEditGift() {
-    String giftTitle = "Headphones";
-    String updatedGiftTitle = "Wireless headphones";
+    String createdGiftTitle = "Steam Deck";
+    String updatedGiftTitle = "Steam Deck OLED";
 
     testDataPreparer.prepare(TestDataScenario.GIFT_CREATE);
     loginPage.login(usersConfig.giftUser());
 
+    wishlistPage.checkOpened();
     wishlistPage.openAnyWishlist();
+
+    giftEditPage.checkOpened();
     giftEditPage.openCreateGiftForm();
-    giftEditPage.createGift(giftTitle, 3200, "Created by autotest");
-    giftEditPage.shouldContainGift(giftTitle);
-    giftEditPage.editGiftByTitle(giftTitle, updatedGiftTitle);
+    giftEditPage.createGift(createdGiftTitle);
+    giftEditPage.shouldContainGift(createdGiftTitle);
+
+    giftEditPage.editGiftByTitle(createdGiftTitle, updatedGiftTitle);
     giftEditPage.shouldContainGift(updatedGiftTitle);
   }
 
   @Test
   void shouldFixGiftPrice() {
+    int newPrice;
+
     testDataPreparer.prepare(TestDataScenario.GIFT_EDIT);
     loginPage.login(usersConfig.giftEditUser());
 
-    wishlistPage.openAnyWishlist();
+    wishlistPage.openWishlist("testingData");
+    giftEditPage.checkOpened();
 
-    int newPrice = giftEditPage.generateRandomPrice(2600, 4100);
+    newPrice = giftEditPage.generateRandomPrice(2600, 4100);
     giftEditPage.editFirstGiftPrice(newPrice);
     giftEditPage.shouldContainPrice(newPrice);
   }

@@ -2,10 +2,7 @@ package ru.otus.mobile.config;
 
 import com.google.inject.Singleton;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 @Singleton
 public class TestConfig {
@@ -16,8 +13,8 @@ public class TestConfig {
     this.properties = PropertiesLoader.load("application.properties");
   }
 
-  public String appiumUrl() {
-    return System.getProperty("appium.url", properties.getProperty("appium.url"));
+  public String appiumHost() {
+    return System.getProperty("appium.host", properties.getProperty("appium.host"));
   }
 
   public String appDownloadUrl() {
@@ -44,23 +41,5 @@ public class TestConfig {
     return Duration.ofMillis(
         Long.parseLong(
             System.getProperty("timeout.ms", properties.getProperty("timeout.ms", "10000"))));
-  }
-
-  public List<String> deviceNames() {
-    return split(
-        System.getProperty(
-            "device.names", properties.getProperty("device.names", "emulator-5554")));
-  }
-
-  public List<String> serverUrls() {
-    return split(
-        System.getProperty("server.urls", properties.getProperty("server.urls", appiumUrl())));
-  }
-
-  private List<String> split(String value) {
-    return Arrays.stream(value.split(","))
-        .map(String::trim)
-        .filter(item -> !item.isBlank())
-        .collect(Collectors.toList());
   }
 }

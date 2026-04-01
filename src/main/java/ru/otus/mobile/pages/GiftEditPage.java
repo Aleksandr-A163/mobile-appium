@@ -1,21 +1,41 @@
 package ru.otus.mobile.pages;
 
 import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
-import static com.codeborne.selenide.appium.SelenideAppium.$$;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.SelenideElement;
+import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 import java.util.concurrent.ThreadLocalRandom;
-import javax.inject.Singleton;
+import ru.otus.mobile.components.GiftCardComponent;
+import ru.otus.mobile.components.GiftListContent;
 
 @Singleton
 public class GiftEditPage extends AbsBasePage {
 
+  private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts"));
+  private final SelenideElement addButton = $(AppiumBy.id("ru.otus.wishlist:id/add_button"));
+  private final SelenideElement saveButton = $(AppiumBy.id("ru.otus.wishlist:id/save_button"));
+  private final SelenideElement nameInput = $(AppiumBy.id("ru.otus.wishlist:id/name_input"));
+  private final SelenideElement priceInput = $(AppiumBy.id("ru.otus.wishlist:id/price_input"));
+  private final SelenideElement descriptionInput =
+      $(AppiumBy.id("ru.otus.wishlist:id/description_input"));
+  private final SelenideElement giftEditTitle =
+      $(AppiumBy.id("ru.otus.wishlist:id/gift_edit_title"));
+
+  public GiftEditPage checkOpened() {
+    giftsRoot.shouldBe(visible);
+    return this;
+  }
+
+  public GiftListContent gifts() {
+    return new GiftListContent(giftsRoot);
+  }
+
   public void openCreateGiftForm() {
-    $(AppiumBy.id("ru.otus.wishlist:id/add_button")).should(exist).click();
-    $(AppiumBy.id("ru.otus.wishlist:id/save_button")).should(exist);
+    addButton.should(exist).click();
+    saveButton.should(exist);
   }
 
   public void createGift(String title) {
@@ -23,10 +43,10 @@ public class GiftEditPage extends AbsBasePage {
   }
 
   public void createGift(String title, int price, String description) {
-    $(AppiumBy.id("ru.otus.wishlist:id/name_input")).should(exist).setValue(title);
-    $(AppiumBy.id("ru.otus.wishlist:id/price_input")).should(exist).setValue(String.valueOf(price));
-    $(AppiumBy.id("ru.otus.wishlist:id/description_input")).should(exist).setValue(description);
-    $(AppiumBy.id("ru.otus.wishlist:id/save_button")).should(exist).click();
+    nameInput.should(exist).setValue(title);
+    priceInput.should(exist).setValue(String.valueOf(price));
+    descriptionInput.should(exist).setValue(description);
+    saveButton.should(exist).click();
   }
 
   public int generateRandomPrice(int minInclusive, int maxInclusive) {
@@ -34,56 +54,43 @@ public class GiftEditPage extends AbsBasePage {
   }
 
   public void editFirstGiftPrice(int newPrice) {
-    SelenideElement firstGift =
-        $$(AppiumBy.id("ru.otus.wishlist:id/gift_item")).first().should(exist);
+    GiftCardComponent firstGift = gifts().first();
+    firstGift.clickEdit();
 
-    firstGift.$(AppiumBy.id("ru.otus.wishlist:id/edit_button")).should(exist).click();
-    $(AppiumBy.id("ru.otus.wishlist:id/gift_edit_title")).should(exist);
-
-    SelenideElement priceInput = $(AppiumBy.id("ru.otus.wishlist:id/price_input")).should(exist);
-    priceInput.clear();
+    giftEditTitle.should(exist);
+    priceInput.should(exist).clear();
     priceInput.setValue(String.valueOf(newPrice));
-
-    $(AppiumBy.id("ru.otus.wishlist:id/save_button")).should(exist).click();
+    saveButton.should(exist).click();
   }
 
   public void editGiftByTitle(String currentTitle, String newTitle) {
-    SelenideElement giftItem = findGiftItemByTitle(currentTitle);
+    GiftCardComponent giftItem = gifts().findByTitle(currentTitle);
+    giftItem.clickEdit();
 
-    giftItem.$(AppiumBy.id("ru.otus.wishlist:id/edit_button")).should(exist).click();
-    $(AppiumBy.id("ru.otus.wishlist:id/gift_edit_title")).should(exist);
-
-    SelenideElement nameInput = $(AppiumBy.id("ru.otus.wishlist:id/name_input")).should(exist);
-    nameInput.clear();
+    giftEditTitle.should(exist);
+    nameInput.should(exist).clear();
     nameInput.setValue(newTitle);
-
-    $(AppiumBy.id("ru.otus.wishlist:id/save_button")).should(exist).click();
-  }
-
-  private SelenideElement findGiftItemByTitle(String title) {
-    int count = $$(AppiumBy.id("ru.otus.wishlist:id/gift_item")).size();
-
-    for (int i = 0; i < count; i++) {
-      SelenideElement item = $$(AppiumBy.id("ru.otus.wishlist:id/gift_item")).get(i);
-      String actualTitle = item.$(AppiumBy.id("ru.otus.wishlist:id/title")).should(exist).getText();
-
-      if (title.equals(actualTitle)) {
-        return item;
-      }
-    }
-
-    throw new AssertionError("Не найден подарок с названием: " + title);
+    saveButton.should(exist).click();
   }
 
   public void shouldContainPrice(int price) {
-    String expectedPrice = price + " ₽";
+    gifts().assertSizeEqualTo(gifts().size());
 
-    $$(AppiumBy.id("ru.otus.wishlist:id/price"))
-        .shouldHave(CollectionCondition.itemWithText(expectedPrice));
+    String expectedPrice = price + " ₽";
+    int count = gifts().size();
+
+    for (int i = 1; i <= count; i++) {
+      try {
+        gifts().get(i).assertPriceEqualsTo(expectedPrice);
+        return;
+      } catch (AssertionError ignored) {
+      }
+    }
+
+    throw new AssertionError("Не найдена цена подарка: " + expectedPrice);
   }
 
   public void shouldContainGift(String title) {
-    $$(AppiumBy.id("ru.otus.wishlist:id/title"))
-        .shouldHave(CollectionCondition.itemWithText(title));
+    gifts().findByTitle(title);
   }
 }

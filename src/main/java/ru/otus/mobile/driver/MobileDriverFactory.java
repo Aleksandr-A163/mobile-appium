@@ -1,6 +1,5 @@
 package ru.otus.mobile.driver;
 
-import com.codeborne.selenide.WebDriverRunner;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.appium.java_client.android.AndroidDriver;
@@ -32,12 +31,10 @@ public class MobileDriverFactory {
             .autoGrantPermissions();
 
     try {
-      AndroidDriver driver = new AndroidDriver(new URL(session.appiumServerUrl()), options);
-      WebDriverRunner.setWebDriver(driver);
-      return driver;
+      return new AndroidDriver(new URL(session.appiumServerUrl(config.appiumHost())), options);
     } catch (MalformedURLException exception) {
       throw new IllegalStateException(
-          "Invalid Appium URL: " + session.appiumServerUrl(), exception);
+          "Invalid Appium URL for session " + session.name(), exception);
     }
   }
 }

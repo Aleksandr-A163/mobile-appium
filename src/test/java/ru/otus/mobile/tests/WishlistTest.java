@@ -19,10 +19,12 @@ class WishlistTest {
 
   @Test
   void shouldCreateWishlist() {
-    String wishlistTitle = "Birthday wishlist " + System.currentTimeMillis();
+    String wishlistTitle = "Birthday wishlist";
 
     testDataPreparer.prepare(TestDataScenario.WISHLIST_CREATE);
     loginPage.login(usersConfig.wishlistCreateUser());
+
+    wishlistPage.checkOpened();
     wishlistPage.openCreateWishlistForm();
     wishlistPage.createWishlist(wishlistTitle);
     wishlistPage.shouldContainWishlist(wishlistTitle);
@@ -30,12 +32,15 @@ class WishlistTest {
 
   @Test
   void shouldEditWishlist() {
+    String originalTitle = "Travel wishlist";
+    String updatedTitle = "Updated travel wishlist";
+
     testDataPreparer.prepare(TestDataScenario.WISHLIST_EDIT);
     loginPage.login(usersConfig.wishlistEditUser());
 
-    String updatedTitle = "Updated travel wishlist";
-
-    wishlistPage.editAnyWishlistExcept(updatedTitle, updatedTitle);
+    wishlistPage.checkOpened();
+    wishlistPage.openWishlistForEdit(originalTitle);
+    wishlistPage.createWishlist(updatedTitle);
     wishlistPage.shouldContainWishlist(updatedTitle);
   }
 }

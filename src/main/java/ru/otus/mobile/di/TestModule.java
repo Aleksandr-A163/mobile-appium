@@ -8,8 +8,12 @@ import ru.otus.mobile.config.TestUsersConfig;
 import ru.otus.mobile.data.TestDataPreparer;
 import ru.otus.mobile.driver.EmulatorPool;
 import ru.otus.mobile.driver.MobileDriverFactory;
+import ru.otus.mobile.pages.FilterUserPage;
 import ru.otus.mobile.pages.GiftEditPage;
 import ru.otus.mobile.pages.LoginPage;
+import ru.otus.mobile.pages.UserWishlistsPage;
+import ru.otus.mobile.pages.UsersPage;
+import ru.otus.mobile.pages.WishlistDetailsPage;
 import ru.otus.mobile.pages.WishlistPage;
 
 public class TestModule extends AbstractModule {
@@ -22,6 +26,10 @@ public class TestModule extends AbstractModule {
     bind(LoginPage.class);
     bind(WishlistPage.class);
     bind(GiftEditPage.class);
+    bind(UsersPage.class);
+    bind(FilterUserPage.class);
+    bind(UserWishlistsPage.class);
+    bind(WishlistDetailsPage.class);
   }
 
   @Provides
@@ -32,8 +40,8 @@ public class TestModule extends AbstractModule {
 
   @Provides
   @Singleton
-  public EmulatorPool provideEmulatorPool(TestConfig config) {
-    return new EmulatorPool(config);
+  public EmulatorPool provideEmulatorPool() {
+    return new EmulatorPool();
   }
 
   @Provides

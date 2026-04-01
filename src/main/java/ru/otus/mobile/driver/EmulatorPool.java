@@ -1,27 +1,17 @@
 package ru.otus.mobile.driver;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import ru.otus.mobile.config.TestConfig;
 
 @Singleton
 public class EmulatorPool {
 
-  private final BlockingQueue<MobileSession> sessions;
+  private final BlockingQueue<MobileSession> sessions = new LinkedBlockingQueue<>();
 
-  @Inject
-  public EmulatorPool(TestConfig config) {
-    List<String> deviceNames = config.deviceNames();
-    List<String> serverUrls = config.serverUrls();
-    if (deviceNames.size() != serverUrls.size()) {
-      throw new IllegalStateException("device.names and server.urls must have the same size");
-    }
-    sessions = new LinkedBlockingQueue<>();
-    for (int i = 0; i < deviceNames.size(); i++) {
-      sessions.add(new MobileSession(deviceNames.get(i), serverUrls.get(i)));
+  public EmulatorPool() {
+    for (MobileSession session : MobileSession.values()) {
+      sessions.add(session);
     }
   }
 

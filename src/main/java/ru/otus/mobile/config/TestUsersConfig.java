@@ -24,9 +24,18 @@ public class TestUsersConfig {
     return user("gift.edit");
   }
 
+  public TestUser giftReservationUser() {
+    return user("gift.reservation");
+  }
+
+  public TestUser giftReservationOwnerUser() {
+    return user("gift.reservation.owner");
+  }
+
   private TestUser user(String prefix) {
     return new TestUser(
-        properties.getProperty(prefix + ".username"), properties.getProperty(prefix + ".password"));
+        properties.getProperty(prefix + ".username"),
+        properties.getProperty(prefix + ".password"));
   }
 
   public record TestUser(String username, String password) {}
