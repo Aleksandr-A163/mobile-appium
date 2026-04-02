@@ -11,9 +11,6 @@ import ru.otus.mobile.driver.MobileDriverFactory;
 
 public class TestModule extends AbstractModule {
 
-  @Override
-  protected void configure() {}
-
   @Provides
   @Singleton
   public TestConfig provideTestConfig() {

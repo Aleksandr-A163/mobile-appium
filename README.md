@@ -1,79 +1,101 @@
-# Mobile Appium Homework
+# Mobile Appium Tests
 
-Проект с UI-тестами мобильного приложения на Java с использованием Appium, Selenide, JUnit 5 и Guice.
+Проект с UI-автотестами для Android-приложения **Wishlist** (`ru.otus.wishlist`) на базе **Java + JUnit 5 + Selenide + Appium + Guice**.
 
-## Стек
+## Что есть в проекте
 
-- Java 17
-- Gradle
-- JUnit 5
-- Selenide
-- Selenide Appium
-- Appium Java Client
-- Google Guice
-- PostgreSQL JDBC
-- Docker Compose
-- WireMock
+* UI-тесты для основных пользовательских сценариев
+* Page Object + component-based подход
+* Dependency Injection через Guice
+* Единый `Injector` на весь проект
+* Пул мобильных сессий через `EmulatorPool`
+* Подготовка тестовых данных через JDBC и `PreparedStatement`
+* Конфигурация через `.properties` и system properties
 
-## Подготовка APK
+## Технологии
 
-Перед запуском положите файл `wishlist.apk` в каталог:
+* Java 17
+* Gradle
+* JUnit 5
+* Selenide
+* Appium
+* Selenium WebDriver
+* Guice
+* PostgreSQL
 
-```bash
-wiremock/__files/wishlist.apk
-```
+## Структура проекта
 
-После этого APK будет доступен по адресу:
+* `src/main/java/ru/otus/mobile/config` — конфигурация проекта и тестовых данных
+* `src/main/java/ru/otus/mobile/data` — подготовка тестовых данных в БД
+* `src/main/java/ru/otus/mobile/driver` — драйвер, мобильные сессии, пул эмуляторов
+* `src/main/java/ru/otus/mobile/pages` — Page Object
+* `src/main/java/ru/otus/mobile/components` — переиспользуемые UI-компоненты
+* `src/main/java/ru/otus/mobile/extensions` — JUnit 5 extensions
+* `src/test/java/ru/otus/mobile/tests` — тесты
 
-```text
-http://127.0.0.1:8089/download/wishlist.apk
-```
+## Покрытые сценарии
 
-## Запуск инфраструктуры
-
-```bash
-docker compose up -d
-```
-
-После запуска будут доступны:
-
-- Appium: `http://127.0.0.1:4723`
-- WireMock: `http://127.0.0.1:8089`
-- VNC эмулятора: `http://127.0.0.1:6080`
+* создание wishlist
+* редактирование wishlist
+* создание gift
+* редактирование цены gift
+* изменение статуса резерва gift у другого пользователя
 
 ## Запуск тестов
 
-### Linux / macOS
+### Все тесты
 
 ```bash
-./gradlew clean test \
-  -DdatabaseUsername=student \
-  -DdatabasePassword=student
+./gradlew clean test
 ```
 
-### Windows
-
-```powershell
-.\gradlew.bat clean test `
-  -DdatabaseUsername=student `
-  -DdatabasePassword=student
-```
-
-### Запуск отдельного теста
+### Отдельный тестовый класс
 
 ```bash
-./gradlew test --tests "ru.otus.mobile.tests.GiftTest.shouldFixGiftPrice" \
-  -DdatabaseUsername=student \
-  -DdatabasePassword=student
+./gradlew test --tests "ru.otus.mobile.tests.GiftTest"
 ```
 
-## Тестовые сценарии
+### Отдельный тестовый метод
 
-- создание списка желаний
-- редактирование списка желаний
-- создание и редактирование подарка
-- изменение цены подарка
+```bash
+./gradlew test --tests "ru.otus.mobile.tests.GiftTest.shouldFixGiftPrice" "-DdatabaseUsername=student" "-DdatabasePassword=student"
+```
 
-## Подготовка данных
+## Настройки
 
-Перед выполнением тестов состояние в БД подготавливается автоматически через `TestDataPreparer` и `TestDataScenario`.
+Основные настройки читаются из property-файлов и могут быть переопределены через `-D...`:
+
+* `appium.host`
+* `app.download.url`
+* `app.package`
+* `app.activity`
+* `platform.name`
+* `automation.name`
+* `databaseUrl`
+* `databaseUsername`
+* `databasePassword`
+* `testdata.wishlist.base.title`
+* `testdata.wishlist.base.description`
+* `testdata.gift.base.name`
+* `testdata.gift.base.description`
+* `testdata.gift.base.price`
+
+Пользователи для тестов задаются в `test-users.properties`.
+
+## Особенности реализации
+
+* `DriverExtension` управляет жизненным циклом драйвера и инъекцией зависимостей
+* `MobileDriverFactory` отвечает только за создание драйвера
+* `WebDriverRunner.setWebDriver(...)` вызывается в extension, а не в factory
+* Подготовка тестовых данных упрощена до предсказуемого состояния под каждый сценарий
+* SQL-запросы выполняются безопасно через `PreparedStatement`
+* Секреты БД не выводятся в консоль
+
+## Требования к окружению
+
+Для запуска нужны:
+
+* доступный Appium server
+* Android emulator / device
+* доступ к тестовой PostgreSQL БД
+* корректные значения в properties или `-D` параметрах

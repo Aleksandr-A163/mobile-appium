@@ -21,15 +21,6 @@ public class WishlistCardComponent extends BaseMobileComponent<WishlistCardCompo
     return this;
   }
 
-  public WishlistCardComponent assertSubtitleEqualsTo(String value) {
-    subtitle.shouldHave(exactText(value));
-    return this;
-  }
-
-  public String titleText() {
-    return title.shouldBe(visible).getText();
-  }
-
   public void clickEdit() {
     editButton.shouldBe(visible).click();
   }

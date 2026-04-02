@@ -1,6 +1,5 @@
 package ru.otus.mobile.components;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.appium.java_client.AppiumBy;
@@ -37,14 +36,5 @@ public class WishlistContent extends BaseMobileComponent<WishlistContent> {
   public WishlistContent shouldContainTitle(String title) {
     findByTitle(title);
     return this;
-  }
-
-  public WishlistContent assertSizeEqualTo(int expectedSize) {
-    items.shouldHave(CollectionCondition.size(expectedSize));
-    return this;
-  }
-
-  public int size() {
-    return items.size();
   }
 }

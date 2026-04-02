@@ -1,6 +1,5 @@
 package ru.otus.mobile.components;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.appium.java_client.AppiumBy;
@@ -31,11 +30,6 @@ public class GiftListContent extends BaseMobileComponent<GiftListContent> {
       }
     }
     throw new AssertionError("Gift was not found by title: " + title);
-  }
-
-  public GiftListContent assertSizeEqualTo(int expectedSize) {
-    items.shouldHave(CollectionCondition.size(expectedSize));
-    return this;
   }
 
   public int size() {
