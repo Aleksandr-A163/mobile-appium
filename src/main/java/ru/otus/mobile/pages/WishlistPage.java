@@ -14,14 +14,22 @@ import ru.otus.mobile.components.WishlistContent;
 public class WishlistPage extends AbsBasePage {
 
   private final SelenideElement addButton = $(AppiumBy.id("ru.otus.wishlist:id/add_button"));
-  private final SelenideElement wishlistsRoot = $(AppiumBy.id("ru.otus.wishlist:id/wishlists"));
+  private final SelenideElement wishlistsRoot =
+      $(AppiumBy.id("ru.otus.wishlist:id/wishlists_content"));
+  private final SelenideElement noResultsBlock =
+      $(AppiumBy.id("ru.otus.wishlist:id/wishlists_no_results"));
+  private final SelenideElement noResultsText =
+      $(AppiumBy.id("ru.otus.wishlist:id/no_results_text"));
+
   private final SelenideElement titleInput = $(AppiumBy.id("ru.otus.wishlist:id/title_input"));
   private final SelenideElement descriptionInput =
       $(AppiumBy.id("ru.otus.wishlist:id/description_input"));
   private final SelenideElement saveButton = $(AppiumBy.id("ru.otus.wishlist:id/save_button"));
 
   public WishlistPage checkOpened() {
-    wishlistsRoot.shouldBe(visible);
+    topAppBar.shouldBeVisible().shouldHaveTitle("Мои желания");
+    bottomNav.shouldBeVisible();
+    addButton.shouldBe(visible);
     return this;
   }
 
@@ -30,7 +38,8 @@ public class WishlistPage extends AbsBasePage {
   }
 
   public void openCreateWishlistForm() {
-    addButton.should(exist).click();
+    checkOpened();
+    addButton.shouldBe(visible).click();
     titleInput.should(exist);
     descriptionInput.should(exist);
     saveButton.should(exist);
@@ -44,6 +53,11 @@ public class WishlistPage extends AbsBasePage {
 
   public void shouldContainWishlist(String title) {
     wishlistContent().shouldContainTitle(title);
+  }
+
+  public void shouldShowEmptyState() {
+    noResultsBlock.shouldBe(visible);
+    noResultsText.shouldBe(visible);
   }
 
   public void editAnyWishlistExcept(String forbiddenTitle, String newTitle) {

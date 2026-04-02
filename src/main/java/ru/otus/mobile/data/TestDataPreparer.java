@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 import ru.otus.mobile.config.TestUsersConfig;
 
 @Singleton
@@ -17,9 +18,17 @@ public class TestDataPreparer {
   private static final String WISHLIST_EDIT_BASE_TITLE = "Travel wishlist";
   private static final String WISHLIST_EDIT_BASE_DESCRIPTION = "Travel wishlist";
 
-  private static final String GIFT_EDIT_BASE_WISHLIST_TITLE = "testingData";
+  private static final String GIFT_EDIT_BASE_WISHLIST_TITLE = "Travel wishlist";
+  private static final String GIFT_EDIT_BASE_WISHLIST_DESCRIPTION = "Travel wishlist";
   private static final String GIFT_EDIT_BASE_GIFT_NAME = "Покемон";
+  private static final String GIFT_EDIT_BASE_GIFT_DESCRIPTION = "Пикасу и слоупок";
   private static final int GIFT_EDIT_BASE_PRICE = 2000;
+
+  private static final String GIFT_RESERVATION_WISHLIST_TITLE = "Travel wishlist";
+  private static final String GIFT_RESERVATION_WISHLIST_DESCRIPTION = "Travel wishlist";
+  private static final String GIFT_RESERVATION_GIFT_NAME = "Покемон";
+  private static final String GIFT_RESERVATION_GIFT_DESCRIPTION = "Пикасу и слоупок";
+  private static final int GIFT_RESERVATION_GIFT_PRICE = 2000;
 
   private final TestUsersConfig usersConfig;
 
@@ -95,43 +104,92 @@ public class TestDataPreparer {
   private void prepareGiftEdit(Connection connection) throws SQLException {
     String username = usersConfig.giftEditUser().username();
 
-    try (PreparedStatement statement =
-        connection.prepareStatement(
-            """
-            UPDATE gifts
-            SET name = ?, price = ?, is_reserved = false
-            WHERE wish_id IN (
-                SELECT w.id
-                FROM wishlists w
-                JOIN users u ON u.id = w.user_id
-                WHERE u.username = ?
-                  AND w.title = ?
-            )
-            """)) {
-      statement.setString(1, GIFT_EDIT_BASE_GIFT_NAME);
-      statement.setInt(2, GIFT_EDIT_BASE_PRICE);
-      statement.setString(3, username);
-      statement.setString(4, GIFT_EDIT_BASE_WISHLIST_TITLE);
-      statement.executeUpdate();
-    }
+    ensureWishlistExists(
+        connection, username, GIFT_EDIT_BASE_WISHLIST_TITLE, GIFT_EDIT_BASE_WISHLIST_DESCRIPTION);
+
+    deleteGiftsByUsernameAndWishlistTitle(connection, username, GIFT_EDIT_BASE_WISHLIST_TITLE);
+
+    insertGiftForWishlist(
+        connection,
+        username,
+        GIFT_EDIT_BASE_WISHLIST_TITLE,
+        GIFT_EDIT_BASE_GIFT_NAME,
+        GIFT_EDIT_BASE_GIFT_DESCRIPTION,
+        GIFT_EDIT_BASE_PRICE);
   }
 
   private void prepareGiftReservation(Connection connection) throws SQLException {
     String ownerUsername = usersConfig.giftReservationOwnerUser().username();
 
+    ensureWishlistExists(
+        connection,
+        ownerUsername,
+        GIFT_RESERVATION_WISHLIST_TITLE,
+        GIFT_RESERVATION_WISHLIST_DESCRIPTION);
+
+    deleteGiftsByUsernameAndWishlistTitle(
+        connection, ownerUsername, GIFT_RESERVATION_WISHLIST_TITLE);
+
+    insertGiftForWishlist(
+        connection,
+        ownerUsername,
+        GIFT_RESERVATION_WISHLIST_TITLE,
+        GIFT_RESERVATION_GIFT_NAME,
+        GIFT_RESERVATION_GIFT_DESCRIPTION,
+        GIFT_RESERVATION_GIFT_PRICE);
+  }
+
+  private void ensureWishlistExists(
+      Connection connection, String username, String wishlistTitle, String wishlistDescription)
+      throws SQLException {
     try (PreparedStatement statement =
         connection.prepareStatement(
             """
-            UPDATE gifts
-            SET is_reserved = false
-            WHERE wish_id IN (
-                SELECT w.id
-                FROM wishlists w
-                JOIN users u ON u.id = w.user_id
-                WHERE u.username = ?
-            )
+            INSERT INTO wishlists (id, user_id, description, title)
+            SELECT ?::uuid, u.id, ?, ?
+            FROM users u
+            WHERE u.username = ?
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM wishlists w
+                  WHERE w.user_id = u.id
+                    AND w.title = ?
+              )
             """)) {
-      statement.setString(1, ownerUsername);
+      statement.setString(1, UUID.randomUUID().toString());
+      statement.setString(2, wishlistDescription);
+      statement.setString(3, wishlistTitle);
+      statement.setString(4, username);
+      statement.setString(5, wishlistTitle);
+      statement.executeUpdate();
+    }
+  }
+
+  private void insertGiftForWishlist(
+      Connection connection,
+      String username,
+      String wishlistTitle,
+      String giftName,
+      String giftDescription,
+      int giftPrice)
+      throws SQLException {
+    try (PreparedStatement statement =
+        connection.prepareStatement(
+            """
+            INSERT INTO gifts (id, wish_id, description, name, price, is_reserved)
+            SELECT ?::uuid, w.id, ?, ?, ?, false
+            FROM wishlists w
+            JOIN users u ON u.id = w.user_id
+            WHERE u.username = ?
+              AND w.title = ?
+            LIMIT 1
+            """)) {
+      statement.setString(1, UUID.randomUUID().toString());
+      statement.setString(2, giftDescription);
+      statement.setString(3, giftName);
+      statement.setInt(4, giftPrice);
+      statement.setString(5, username);
+      statement.setString(6, wishlistTitle);
       statement.executeUpdate();
     }
   }
@@ -149,6 +207,26 @@ public class TestDataPreparer {
             )
             """)) {
       statement.setString(1, username);
+      statement.executeUpdate();
+    }
+  }
+
+  private void deleteGiftsByUsernameAndWishlistTitle(
+      Connection connection, String username, String wishlistTitle) throws SQLException {
+    try (PreparedStatement statement =
+        connection.prepareStatement(
+            """
+            DELETE FROM gifts
+            WHERE wish_id IN (
+                SELECT w.id
+                FROM wishlists w
+                JOIN users u ON u.id = w.user_id
+                WHERE u.username = ?
+                  AND w.title = ?
+            )
+            """)) {
+      statement.setString(1, username);
+      statement.setString(2, wishlistTitle);
       statement.executeUpdate();
     }
   }

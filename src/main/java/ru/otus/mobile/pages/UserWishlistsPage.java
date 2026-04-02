@@ -11,9 +11,12 @@ import ru.otus.mobile.components.UserWishlistsContent;
 @Singleton
 public class UserWishlistsPage extends AbsBasePage {
 
-  private final SelenideElement wishlistsRoot = $(AppiumBy.id("ru.otus.wishlist:id/wishlists"));
+  private final SelenideElement wishlistsRoot =
+      $(AppiumBy.id("ru.otus.wishlist:id/wishlists_content"));
 
   public UserWishlistsPage checkOpened() {
+    topAppBar.shouldBeVisible();
+    bottomNav.shouldBeVisible();
     wishlistsRoot.shouldBe(visible);
     return this;
   }

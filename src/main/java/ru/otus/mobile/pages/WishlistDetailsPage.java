@@ -11,15 +11,26 @@ import ru.otus.mobile.components.GiftListContent;
 @Singleton
 public class WishlistDetailsPage extends AbsBasePage {
 
-  private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts"));
+  private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts_content"));
+  private final SelenideElement noResultsBlock =
+      $(AppiumBy.id("ru.otus.wishlist:id/gifts_no_results"));
+  private final SelenideElement noResultsText =
+      $(AppiumBy.id("ru.otus.wishlist:id/no_results_text"));
 
   public WishlistDetailsPage checkOpened() {
-    giftsRoot.shouldBe(visible);
+    topAppBar.shouldBeVisible();
+    bottomNav.shouldBeVisible();
     return this;
   }
 
   public GiftListContent gifts() {
     return new GiftListContent(giftsRoot);
+  }
+
+  public WishlistDetailsPage shouldShowEmptyState() {
+    noResultsBlock.shouldBe(visible);
+    noResultsText.shouldBe(visible);
+    return this;
   }
 
   public WishlistDetailsPage reserveGift(int index) {

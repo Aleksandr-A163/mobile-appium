@@ -14,7 +14,12 @@ import ru.otus.mobile.components.GiftListContent;
 @Singleton
 public class GiftEditPage extends AbsBasePage {
 
-  private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts"));
+  private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts_content"));
+  private final SelenideElement noResultsBlock =
+      $(AppiumBy.id("ru.otus.wishlist:id/gifts_no_results"));
+  private final SelenideElement noResultsText =
+      $(AppiumBy.id("ru.otus.wishlist:id/no_results_text"));
+
   private final SelenideElement addButton = $(AppiumBy.id("ru.otus.wishlist:id/add_button"));
   private final SelenideElement saveButton = $(AppiumBy.id("ru.otus.wishlist:id/save_button"));
   private final SelenideElement nameInput = $(AppiumBy.id("ru.otus.wishlist:id/name_input"));
@@ -25,7 +30,9 @@ public class GiftEditPage extends AbsBasePage {
       $(AppiumBy.id("ru.otus.wishlist:id/gift_edit_title"));
 
   public GiftEditPage checkOpened() {
-    giftsRoot.shouldBe(visible);
+    topAppBar.shouldBeVisible();
+    bottomNav.shouldBeVisible();
+    addButton.shouldBe(visible);
     return this;
   }
 
@@ -33,7 +40,13 @@ public class GiftEditPage extends AbsBasePage {
     return new GiftListContent(giftsRoot);
   }
 
+  public void shouldShowEmptyState() {
+    noResultsBlock.shouldBe(visible);
+    noResultsText.shouldBe(visible);
+  }
+
   public void openCreateGiftForm() {
+    checkOpened();
     addButton.should(exist).click();
     saveButton.should(exist);
   }
@@ -74,8 +87,6 @@ public class GiftEditPage extends AbsBasePage {
   }
 
   public void shouldContainPrice(int price) {
-    gifts().assertSizeEqualTo(gifts().size());
-
     String expectedPrice = price + " ₽";
     int count = gifts().size();
 

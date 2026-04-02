@@ -1,6 +1,6 @@
 package ru.otus.mobile.components;
 
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 
 import com.codeborne.selenide.SelenideElement;
@@ -17,12 +17,12 @@ public class WishlistCardComponent extends BaseMobileComponent<WishlistCardCompo
   }
 
   public WishlistCardComponent assertTitleEqualsTo(String value) {
-    title.shouldHave(text(value));
+    title.shouldHave(exactText(value));
     return this;
   }
 
   public WishlistCardComponent assertSubtitleEqualsTo(String value) {
-    subtitle.shouldHave(text(value));
+    subtitle.shouldHave(exactText(value));
     return this;
   }
 

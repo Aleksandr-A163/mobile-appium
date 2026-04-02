@@ -1,6 +1,6 @@
 package ru.otus.mobile.components;
 
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.exactText;
 
 import com.codeborne.selenide.SelenideElement;
 import io.appium.java_client.AppiumBy;
@@ -14,7 +14,7 @@ public class UserWishlistItemComponent extends BaseMobileComponent<UserWishlistI
   }
 
   public UserWishlistItemComponent assertTitleEqualsTo(String value) {
-    title.shouldHave(text(value));
+    title.shouldHave(exactText(value));
     return this;
   }
 }

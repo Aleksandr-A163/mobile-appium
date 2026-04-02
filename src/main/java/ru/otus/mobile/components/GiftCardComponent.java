@@ -1,7 +1,7 @@
 package ru.otus.mobile.components;
 
 import static com.codeborne.selenide.Condition.attribute;
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 
 import com.codeborne.selenide.SelenideElement;
@@ -21,17 +21,17 @@ public class GiftCardComponent extends BaseMobileComponent<GiftCardComponent> {
   }
 
   public GiftCardComponent assertTitleEqualsTo(String value) {
-    title.shouldHave(text(value));
+    title.shouldHave(exactText(value));
     return this;
   }
 
   public GiftCardComponent assertSubtitleEqualsTo(String value) {
-    subtitle.shouldHave(text(value));
+    subtitle.shouldHave(exactText(value));
     return this;
   }
 
   public GiftCardComponent assertPriceEqualsTo(String value) {
-    price.shouldHave(text(value));
+    price.shouldHave(exactText(value));
     return this;
   }
 

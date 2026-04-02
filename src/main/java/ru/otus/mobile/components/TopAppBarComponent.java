@@ -9,12 +9,10 @@ import io.appium.java_client.AppiumBy;
 
 public class TopAppBarComponent extends BaseMobileComponent<TopAppBarComponent> {
 
-  private final SelenideElement title = root.$(AppiumBy.id("ru.otus.wishlist:id/toolbar_title"));
-  private final SelenideElement filterButton = root.$(AppiumBy.id("ru.otus.wishlist:id/filter"));
-  private final SelenideElement addButton = root.$(AppiumBy.id("ru.otus.wishlist:id/add_button"));
+  private final SelenideElement title = root.$(AppiumBy.className("android.widget.TextView"));
 
   public TopAppBarComponent() {
-    super($(AppiumBy.id("ru.otus.wishlist:id/toolbar")));
+    super($(AppiumBy.id("ru.otus.wishlist:id/top_app_bar")));
   }
 
   public TopAppBarComponent shouldBeVisible() {
@@ -25,13 +23,5 @@ public class TopAppBarComponent extends BaseMobileComponent<TopAppBarComponent> 
   public TopAppBarComponent shouldHaveTitle(String expectedTitle) {
     title.shouldBe(visible).shouldHave(text(expectedTitle));
     return this;
-  }
-
-  public void clickFilter() {
-    filterButton.shouldBe(visible).click();
-  }
-
-  public void clickAdd() {
-    addButton.shouldBe(visible).click();
   }
 }

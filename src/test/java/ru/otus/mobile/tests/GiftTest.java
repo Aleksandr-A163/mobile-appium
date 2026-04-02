@@ -46,7 +46,7 @@ class GiftTest {
     testDataPreparer.prepare(TestDataScenario.GIFT_EDIT);
     loginPage.login(usersConfig.giftEditUser());
 
-    wishlistPage.openWishlist("testingData");
+    wishlistPage.openWishlist("Travel wishlist");
     giftEditPage.checkOpened();
 
     newPrice = giftEditPage.generateRandomPrice(2600, 4100);
