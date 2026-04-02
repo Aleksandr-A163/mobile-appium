@@ -14,7 +14,7 @@ public class GiftListContent extends BaseMobileComponent<GiftListContent> {
   }
 
   public GiftCardComponent get(int index) {
-    return new GiftCardComponent(items.get(index - 1));
+    return new GiftCardComponent(items.get(index));
   }
 
   public GiftCardComponent first() {

@@ -25,18 +25,8 @@ public class GiftCardComponent extends BaseMobileComponent<GiftCardComponent> {
     return this;
   }
 
-  public GiftCardComponent assertSubtitleEqualsTo(String value) {
-    subtitle.shouldHave(exactText(value));
-    return this;
-  }
-
-  public GiftCardComponent assertPriceEqualsTo(String value) {
-    price.shouldHave(exactText(value));
-    return this;
-  }
-
-  public String titleText() {
-    return title.shouldBe(visible).getText();
+  public String priceText() {
+    return price.shouldBe(visible).getText();
   }
 
   public void clickEdit() {

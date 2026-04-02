@@ -2,11 +2,14 @@ package ru.otus.mobile.data;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import ru.otus.mobile.config.TestDataConfig;
 import ru.otus.mobile.config.TestUsersConfig;
 
 @Singleton
@@ -15,26 +18,13 @@ public class TestDataPreparer {
   private static final String DEFAULT_DATABASE_URL =
       "jdbc:postgresql://sql.otus.kartushin.su:5432/wishlist";
 
-  private static final String WISHLIST_EDIT_BASE_TITLE = "Travel wishlist";
-  private static final String WISHLIST_EDIT_BASE_DESCRIPTION = "Travel wishlist";
-
-  private static final String GIFT_EDIT_BASE_WISHLIST_TITLE = "Travel wishlist";
-  private static final String GIFT_EDIT_BASE_WISHLIST_DESCRIPTION = "Travel wishlist";
-  private static final String GIFT_EDIT_BASE_GIFT_NAME = "Покемон";
-  private static final String GIFT_EDIT_BASE_GIFT_DESCRIPTION = "Пикасу и слоупок";
-  private static final int GIFT_EDIT_BASE_PRICE = 2000;
-
-  private static final String GIFT_RESERVATION_WISHLIST_TITLE = "Travel wishlist";
-  private static final String GIFT_RESERVATION_WISHLIST_DESCRIPTION = "Travel wishlist";
-  private static final String GIFT_RESERVATION_GIFT_NAME = "Покемон";
-  private static final String GIFT_RESERVATION_GIFT_DESCRIPTION = "Пикасу и слоупок";
-  private static final int GIFT_RESERVATION_GIFT_PRICE = 2000;
-
   private final TestUsersConfig usersConfig;
+  private final TestDataConfig testDataConfig;
 
   @Inject
-  public TestDataPreparer(TestUsersConfig usersConfig) {
+  public TestDataPreparer(TestUsersConfig usersConfig, TestDataConfig testDataConfig) {
     this.usersConfig = usersConfig;
+    this.testDataConfig = testDataConfig;
   }
 
   public void prepare(TestDataScenario scenario) {
@@ -42,16 +32,13 @@ public class TestDataPreparer {
     String databaseUsername = System.getProperty("databaseUsername", "");
     String databasePassword = System.getProperty("databasePassword", "");
 
-    System.out.println("databaseUrl = " + databaseUrl);
-    System.out.println("databaseUsername = " + databaseUsername);
-    System.out.println("databasePassword = " + databasePassword);
-    System.out.println("scenario = " + scenario.name());
-
     try (Connection connection =
         DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword)) {
       connection.setAutoCommit(false);
 
       try {
+        System.out.println("Preparing test data for scenario: " + scenario.name());
+
         switch (scenario) {
           case WISHLIST_CREATE -> prepareWishlistCreate(connection);
           case WISHLIST_EDIT -> prepareWishlistEdit(connection);
@@ -64,7 +51,6 @@ public class TestDataPreparer {
         connection.rollback();
         throw exception;
       }
-
     } catch (SQLException exception) {
       throw new IllegalStateException(
           "Cannot prepare test data for scenario: " + scenario, exception);
@@ -72,126 +58,134 @@ public class TestDataPreparer {
   }
 
   private void prepareWishlistCreate(Connection connection) throws SQLException {
-    deleteGiftsByUsername(connection, usersConfig.wishlistCreateUser().username());
-    deleteWishlistsByUsername(connection, usersConfig.wishlistCreateUser().username());
+    String username = usersConfig.wishlistCreateUser().username();
+    deleteGiftsByUsername(connection, username);
+    deleteWishlistsByUsername(connection, username);
   }
 
   private void prepareWishlistEdit(Connection connection) throws SQLException {
     String username = usersConfig.wishlistEditUser().username();
 
-    try (PreparedStatement statement =
-        connection.prepareStatement(
-            """
-            UPDATE wishlists
-            SET title = ?, description = ?
-            WHERE user_id = (
-                SELECT id
-                FROM users
-                WHERE username = ?
-            )
-            """)) {
-      statement.setString(1, WISHLIST_EDIT_BASE_TITLE);
-      statement.setString(2, WISHLIST_EDIT_BASE_DESCRIPTION);
-      statement.setString(3, username);
-      statement.executeUpdate();
-    }
+    deleteGiftsByUsername(connection, username);
+    deleteWishlistsByUsername(connection, username);
+
+    createWishlist(
+        connection,
+        username,
+        testDataConfig.wishlistBaseTitle(),
+        testDataConfig.wishlistBaseDescription());
   }
 
   private void prepareGiftCreate(Connection connection) throws SQLException {
-    deleteGiftsByUsername(connection, usersConfig.giftUser().username());
+    String username = usersConfig.giftUser().username();
+
+    deleteGiftsByUsername(connection, username);
+
+    if (!hasAnyWishlist(connection, username)) {
+      createWishlist(
+          connection,
+          username,
+          testDataConfig.wishlistBaseTitle(),
+          testDataConfig.wishlistBaseDescription());
+    }
   }
 
   private void prepareGiftEdit(Connection connection) throws SQLException {
     String username = usersConfig.giftEditUser().username();
 
-    ensureWishlistExists(
-        connection, username, GIFT_EDIT_BASE_WISHLIST_TITLE, GIFT_EDIT_BASE_WISHLIST_DESCRIPTION);
+    deleteGiftsByUsername(connection, username);
+    deleteWishlistsByUsername(connection, username);
 
-    deleteGiftsByUsernameAndWishlistTitle(connection, username, GIFT_EDIT_BASE_WISHLIST_TITLE);
+    UUID wishlistId =
+        createWishlist(
+            connection,
+            username,
+            testDataConfig.wishlistBaseTitle(),
+            testDataConfig.wishlistBaseDescription());
 
-    insertGiftForWishlist(
+    insertGift(
         connection,
-        username,
-        GIFT_EDIT_BASE_WISHLIST_TITLE,
-        GIFT_EDIT_BASE_GIFT_NAME,
-        GIFT_EDIT_BASE_GIFT_DESCRIPTION,
-        GIFT_EDIT_BASE_PRICE);
+        wishlistId,
+        testDataConfig.giftBaseName(),
+        testDataConfig.giftBaseDescription(),
+        new BigDecimal(testDataConfig.giftBasePrice()),
+        false);
   }
 
   private void prepareGiftReservation(Connection connection) throws SQLException {
     String ownerUsername = usersConfig.giftReservationOwnerUser().username();
 
-    ensureWishlistExists(
-        connection,
-        ownerUsername,
-        GIFT_RESERVATION_WISHLIST_TITLE,
-        GIFT_RESERVATION_WISHLIST_DESCRIPTION);
+    deleteGiftsByUsername(connection, ownerUsername);
+    deleteWishlistsByUsername(connection, ownerUsername);
 
-    deleteGiftsByUsernameAndWishlistTitle(
-        connection, ownerUsername, GIFT_RESERVATION_WISHLIST_TITLE);
+    UUID wishlistId =
+        createWishlist(
+            connection,
+            ownerUsername,
+            testDataConfig.wishlistBaseTitle(),
+            testDataConfig.wishlistBaseDescription());
 
-    insertGiftForWishlist(
+    insertGift(
         connection,
-        ownerUsername,
-        GIFT_RESERVATION_WISHLIST_TITLE,
-        GIFT_RESERVATION_GIFT_NAME,
-        GIFT_RESERVATION_GIFT_DESCRIPTION,
-        GIFT_RESERVATION_GIFT_PRICE);
+        wishlistId,
+        testDataConfig.giftBaseName(),
+        testDataConfig.giftBaseDescription(),
+        new BigDecimal(testDataConfig.giftBasePrice()),
+        false);
   }
 
-  private void ensureWishlistExists(
-      Connection connection, String username, String wishlistTitle, String wishlistDescription)
-      throws SQLException {
+  private boolean hasAnyWishlist(Connection connection, String username) throws SQLException {
     try (PreparedStatement statement =
         connection.prepareStatement(
             """
-            INSERT INTO wishlists (id, user_id, description, title)
-            SELECT ?::uuid, u.id, ?, ?
-            FROM users u
-            WHERE u.username = ?
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM wishlists w
-                  WHERE w.user_id = u.id
-                    AND w.title = ?
-              )
-            """)) {
-      statement.setString(1, UUID.randomUUID().toString());
-      statement.setString(2, wishlistDescription);
-      statement.setString(3, wishlistTitle);
-      statement.setString(4, username);
-      statement.setString(5, wishlistTitle);
-      statement.executeUpdate();
-    }
-  }
-
-  private void insertGiftForWishlist(
-      Connection connection,
-      String username,
-      String wishlistTitle,
-      String giftName,
-      String giftDescription,
-      int giftPrice)
-      throws SQLException {
-    try (PreparedStatement statement =
-        connection.prepareStatement(
-            """
-            INSERT INTO gifts (id, wish_id, description, name, price, is_reserved)
-            SELECT ?::uuid, w.id, ?, ?, ?, false
+            SELECT 1
             FROM wishlists w
             JOIN users u ON u.id = w.user_id
             WHERE u.username = ?
-              AND w.title = ?
             LIMIT 1
             """)) {
-      statement.setString(1, UUID.randomUUID().toString());
-      statement.setString(2, giftDescription);
-      statement.setString(3, giftName);
-      statement.setInt(4, giftPrice);
-      statement.setString(5, username);
-      statement.setString(6, wishlistTitle);
-      statement.executeUpdate();
+      statement.setString(1, username);
+
+      try (ResultSet resultSet = statement.executeQuery()) {
+        return resultSet.next();
+      }
     }
+  }
+
+  private UUID createWishlist(
+      Connection connection, String username, String title, String description)
+      throws SQLException {
+    try (PreparedStatement statement =
+        connection.prepareStatement(
+            """
+            INSERT INTO wishlists (id, title, description, user_id)
+            VALUES (
+                ?,
+                ?,
+                ?,
+                (
+                    SELECT id
+                    FROM users
+                    WHERE username = ?
+                )
+            )
+            RETURNING id
+            """)) {
+      UUID wishlistId = UUID.randomUUID();
+
+      statement.setObject(1, wishlistId);
+      statement.setString(2, title);
+      statement.setString(3, description);
+      statement.setString(4, username);
+
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          return resultSet.getObject("id", UUID.class);
+        }
+      }
+    }
+
+    throw new IllegalStateException("Cannot create wishlist for user: " + username);
   }
 
   private void deleteGiftsByUsername(Connection connection, String username) throws SQLException {
@@ -211,26 +205,6 @@ public class TestDataPreparer {
     }
   }
 
-  private void deleteGiftsByUsernameAndWishlistTitle(
-      Connection connection, String username, String wishlistTitle) throws SQLException {
-    try (PreparedStatement statement =
-        connection.prepareStatement(
-            """
-            DELETE FROM gifts
-            WHERE wish_id IN (
-                SELECT w.id
-                FROM wishlists w
-                JOIN users u ON u.id = w.user_id
-                WHERE u.username = ?
-                  AND w.title = ?
-            )
-            """)) {
-      statement.setString(1, username);
-      statement.setString(2, wishlistTitle);
-      statement.executeUpdate();
-    }
-  }
-
   private void deleteWishlistsByUsername(Connection connection, String username)
       throws SQLException {
     try (PreparedStatement statement =
@@ -244,6 +218,30 @@ public class TestDataPreparer {
             )
             """)) {
       statement.setString(1, username);
+      statement.executeUpdate();
+    }
+  }
+
+  private void insertGift(
+      Connection connection,
+      UUID wishlistId,
+      String name,
+      String description,
+      BigDecimal price,
+      boolean reserved)
+      throws SQLException {
+    try (PreparedStatement statement =
+        connection.prepareStatement(
+            """
+            INSERT INTO gifts (id, name, description, price, is_reserved, wish_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """)) {
+      statement.setObject(1, UUID.randomUUID());
+      statement.setString(2, name);
+      statement.setString(3, description);
+      statement.setBigDecimal(4, price);
+      statement.setBoolean(5, reserved);
+      statement.setObject(6, wishlistId);
       statement.executeUpdate();
     }
   }

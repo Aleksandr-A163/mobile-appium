@@ -33,8 +33,12 @@ public class TestUsersConfig {
   }
 
   private TestUser user(String prefix) {
-    return new TestUser(
-        properties.getProperty(prefix + ".username"), properties.getProperty(prefix + ".password"));
+    String username =
+        System.getProperty(prefix + ".username", properties.getProperty(prefix + ".username"));
+    String password =
+        System.getProperty(prefix + ".password", properties.getProperty(prefix + ".password"));
+
+    return new TestUser(username, password);
   }
 
   public record TestUser(String username, String password) {}

@@ -1,5 +1,6 @@
 package ru.otus.mobile.pages;
 
+import static com.codeborne.selenide.Condition.disappear;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
@@ -60,6 +61,9 @@ public class GiftEditPage extends AbsBasePage {
     priceInput.should(exist).setValue(String.valueOf(price));
     descriptionInput.should(exist).setValue(description);
     saveButton.should(exist).click();
+
+    giftEditTitle.should(disappear);
+    giftsRoot.shouldBe(visible);
   }
 
   public int generateRandomPrice(int minInclusive, int maxInclusive) {
@@ -74,6 +78,9 @@ public class GiftEditPage extends AbsBasePage {
     priceInput.should(exist).clear();
     priceInput.setValue(String.valueOf(newPrice));
     saveButton.should(exist).click();
+
+    giftEditTitle.should(disappear);
+    giftsRoot.shouldBe(visible);
   }
 
   public void editGiftByTitle(String currentTitle, String newTitle) {
@@ -84,24 +91,30 @@ public class GiftEditPage extends AbsBasePage {
     nameInput.should(exist).clear();
     nameInput.setValue(newTitle);
     saveButton.should(exist).click();
+
+    giftEditTitle.should(disappear);
+    giftsRoot.shouldBe(visible);
   }
 
   public void shouldContainPrice(int price) {
-    String expectedPrice = price + " ₽";
+    String expectedDigits = String.valueOf(price);
     int count = gifts().size();
 
-    for (int i = 1; i <= count; i++) {
-      try {
-        gifts().get(i).assertPriceEqualsTo(expectedPrice);
+    for (int i = 0; i < count; i++) {
+      String actualDigits = extractDigits(gifts().get(i).priceText());
+      if (expectedDigits.equals(actualDigits)) {
         return;
-      } catch (AssertionError ignored) {
       }
     }
 
-    throw new AssertionError("Не найдена цена подарка: " + expectedPrice);
+    throw new AssertionError("Не найдена цена подарка: " + price + " ₽");
   }
 
   public void shouldContainGift(String title) {
     gifts().findByTitle(title);
+  }
+
+  private String extractDigits(String value) {
+    return value == null ? "" : value.replaceAll("\\D+", "");
   }
 }
