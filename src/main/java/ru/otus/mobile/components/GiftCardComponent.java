@@ -50,8 +50,4 @@ public class GiftCardComponent extends BaseMobileComponent<GiftCardComponent> {
   public void assertReserved() {
     reservedToggle.shouldHave(attribute("checked", "true"));
   }
-
-  public void assertNotReserved() {
-    reservedToggle.shouldHave(attribute("checked", "false"));
-  }
 }

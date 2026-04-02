@@ -24,7 +24,7 @@ public class UsersPage extends AbsBasePage {
     return new FilterUserPage().checkOpened();
   }
 
-  public UsersMenuContent users() {
+  private UsersMenuContent users() {
     return new UsersMenuContent(usersRoot);
   }
 

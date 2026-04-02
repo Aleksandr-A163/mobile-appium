@@ -1,7 +1,6 @@
 package ru.otus.mobile.config;
 
 import com.google.inject.Singleton;
-import java.time.Duration;
 import java.util.Properties;
 
 @Singleton
@@ -35,11 +34,5 @@ public class TestConfig {
 
   public String automationName() {
     return System.getProperty("automation.name", properties.getProperty("automation.name"));
-  }
-
-  public Duration timeout() {
-    return Duration.ofMillis(
-        Long.parseLong(
-            System.getProperty("timeout.ms", properties.getProperty("timeout.ms", "10000"))));
   }
 }

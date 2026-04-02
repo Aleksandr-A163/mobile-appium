@@ -36,7 +36,7 @@ public class GiftEditPage extends AbsBasePage {
     return this;
   }
 
-  public GiftListContent gifts() {
+  private GiftListContent gifts() {
     return new GiftListContent(giftsRoot);
   }
 

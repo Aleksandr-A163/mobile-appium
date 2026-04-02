@@ -7,7 +7,6 @@ import static com.codeborne.selenide.appium.SelenideAppium.$;
 import com.codeborne.selenide.SelenideElement;
 import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
-import ru.otus.mobile.components.WishlistCardComponent;
 import ru.otus.mobile.components.WishlistContent;
 
 @Singleton
@@ -33,7 +32,7 @@ public class WishlistPage extends AbsBasePage {
     return this;
   }
 
-  public WishlistContent wishlistContent() {
+  private WishlistContent wishlistContent() {
     return new WishlistContent(wishlistsRoot);
   }
 
@@ -53,36 +52,6 @@ public class WishlistPage extends AbsBasePage {
 
   public void shouldContainWishlist(String title) {
     wishlistContent().shouldContainTitle(title);
-  }
-
-  public void shouldShowEmptyState() {
-    noResultsBlock.shouldBe(visible);
-    noResultsText.shouldBe(visible);
-  }
-
-  public void editAnyWishlistExcept(String forbiddenTitle, String newTitle) {
-    checkOpened();
-
-    int count = wishlistContent().size();
-
-    for (int i = 1; i <= count; i++) {
-      WishlistCardComponent item = wishlistContent().get(i);
-      String actualTitle = item.titleText();
-
-      if (actualTitle != null && !actualTitle.trim().equals(forbiddenTitle)) {
-        item.clickEdit();
-        titleInput.should(exist).clear();
-        titleInput.setValue(newTitle);
-
-        descriptionInput.should(exist).clear();
-        descriptionInput.setValue("Updated by autotest");
-
-        saveButton.should(exist).click();
-        return;
-      }
-    }
-
-    throw new AssertionError("Не найден ни один список желаний, отличный от: " + forbiddenTitle);
   }
 
   public void openAnyWishlist() {

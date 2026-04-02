@@ -6,7 +6,6 @@ guice = "7.0.0"
 slf4j = "2.0.13"
 postgresql = "42.7.3"
 logback = "1.5.6"
-assertj = "3.25.3"
 spotless = "6.25.0"
 
 [libraries]
@@ -14,10 +13,8 @@ selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
 selenide-appium = { module = "com.codeborne:selenide-appium", version.ref = "selenide" }
 appium-java-client = { module = "io.appium:java-client", version.ref = "appium" }
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
-javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
-assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }

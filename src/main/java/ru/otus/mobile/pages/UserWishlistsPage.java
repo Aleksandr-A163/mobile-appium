@@ -21,7 +21,7 @@ public class UserWishlistsPage extends AbsBasePage {
     return this;
   }
 
-  public UserWishlistsContent wishlists() {
+  private UserWishlistsContent wishlists() {
     return new UserWishlistsContent(wishlistsRoot);
   }
 
