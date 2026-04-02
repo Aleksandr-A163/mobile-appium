@@ -4,11 +4,9 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
 
 import com.codeborne.selenide.SelenideElement;
-import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 import ru.otus.mobile.components.UserWishlistsContent;
 
-@Singleton
 public class UserWishlistsPage extends AbsBasePage {
 
   private final SelenideElement wishlistsRoot =
@@ -21,7 +19,7 @@ public class UserWishlistsPage extends AbsBasePage {
     return this;
   }
 
-  private UserWishlistsContent wishlists() {
+  public UserWishlistsContent wishlists() {
     return new UserWishlistsContent(wishlistsRoot);
   }
 

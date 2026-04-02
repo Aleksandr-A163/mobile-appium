@@ -4,11 +4,9 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
 
 import com.codeborne.selenide.SelenideElement;
-import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 import ru.otus.mobile.components.UsersMenuContent;
 
-@Singleton
 public class UsersPage extends AbsBasePage {
 
   private final SelenideElement usersRoot = $(AppiumBy.id("ru.otus.wishlist:id/users"));
@@ -24,7 +22,7 @@ public class UsersPage extends AbsBasePage {
     return new FilterUserPage().checkOpened();
   }
 
-  private UsersMenuContent users() {
+  public UsersMenuContent users() {
     return new UsersMenuContent(usersRoot);
   }
 

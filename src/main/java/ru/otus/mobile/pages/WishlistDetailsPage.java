@@ -4,11 +4,9 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
 
 import com.codeborne.selenide.SelenideElement;
-import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 import ru.otus.mobile.components.GiftListContent;
 
-@Singleton
 public class WishlistDetailsPage extends AbsBasePage {
 
   private final SelenideElement giftsRoot = $(AppiumBy.id("ru.otus.wishlist:id/gifts_content"));
@@ -23,7 +21,7 @@ public class WishlistDetailsPage extends AbsBasePage {
     return this;
   }
 
-  private GiftListContent gifts() {
+  public GiftListContent gifts() {
     return new GiftListContent(giftsRoot);
   }
 
