@@ -8,6 +8,8 @@
 * Page Object + component-based подход
 * Dependency Injection через Guice
 * Единый `Injector` на весь проект
+* Singleton-страницы и singleton-конфигурация через Guice
+* Переходы между страницами через `Provider<T>`, без ручного `new`
 * Пул мобильных сессий через `EmulatorPool`
 * Подготовка тестовых данных через JDBC и `PreparedStatement`
 * Конфигурация через `.properties` и system properties
@@ -22,11 +24,13 @@
 * Selenium WebDriver
 * Guice
 * PostgreSQL
+* Docker Compose
 
 ## Структура проекта
 
 * `src/main/java/ru/otus/mobile/config` — конфигурация проекта и тестовых данных
 * `src/main/java/ru/otus/mobile/data` — подготовка тестовых данных в БД
+* `src/main/java/ru/otus/mobile/di` — Guice module и wiring зависимостей
 * `src/main/java/ru/otus/mobile/driver` — драйвер, мобильные сессии, пул эмуляторов
 * `src/main/java/ru/otus/mobile/pages` — Page Object
 * `src/main/java/ru/otus/mobile/components` — переиспользуемые UI-компоненты
@@ -38,64 +42,25 @@
 * создание wishlist
 * редактирование wishlist
 * создание gift
+* редактирование gift
 * редактирование цены gift
 * изменение статуса резерва gift у другого пользователя
+
+## Архитектурные особенности
+
+* `DriverExtension` создает единый Guice `Injector` и управляет жизненным циклом драйвера
+* `MobileDriverFactory` отвечает только за создание `AndroidDriver`
+* `WebDriverRunner.setWebDriver(...)` вызывается в extension, а не в factory
+* Page Object-классы используются как singleton-компоненты через Guice
+* переходы между страницами выполняются через `Provider<T>`, поэтому объекты не создаются вручную
+* поиск карточек и элементов выполняется через сравнение значений (`getTitle()`, `getName()`), без `assert` внутри бизнес-логики поиска
+* подготовка тестовых данных приводится к предсказуемому состоянию под каждый сценарий
+* SQL-запросы выполняются безопасно через `PreparedStatement`
+* персональные данные из БД не выводятся в консоль
 
 ## Запуск тестов
 
 ### Все тесты
 
 ```bash
-./gradlew clean test
-```
-
-### Отдельный тестовый класс
-
-```bash
-./gradlew test --tests "ru.otus.mobile.tests.GiftTest"
-```
-
-### Отдельный тестовый метод
-
-```bash
-./gradlew test --tests "ru.otus.mobile.tests.GiftTest.shouldFixGiftPrice" "-DdatabaseUsername=student" "-DdatabasePassword=student"
-```
-
-## Настройки
-
-Основные настройки читаются из property-файлов и могут быть переопределены через `-D...`:
-
-* `appium.host`
-* `app.download.url`
-* `app.package`
-* `app.activity`
-* `platform.name`
-* `automation.name`
-* `databaseUrl`
-* `databaseUsername`
-* `databasePassword`
-* `testdata.wishlist.base.title`
-* `testdata.wishlist.base.description`
-* `testdata.gift.base.name`
-* `testdata.gift.base.description`
-* `testdata.gift.base.price`
-
-Пользователи для тестов задаются в `test-users.properties`.
-
-## Особенности реализации
-
-* `DriverExtension` управляет жизненным циклом драйвера и инъекцией зависимостей
-* `MobileDriverFactory` отвечает только за создание драйвера
-* `WebDriverRunner.setWebDriver(...)` вызывается в extension, а не в factory
-* Подготовка тестовых данных упрощена до предсказуемого состояния под каждый сценарий
-* SQL-запросы выполняются безопасно через `PreparedStatement`
-* Секреты БД не выводятся в консоль
-
-## Требования к окружению
-
-Для запуска нужны:
-
-* доступный Appium server
-* Android emulator / device
-* доступ к тестовой PostgreSQL БД
-* корректные значения в properties или `-D` параметрах
+./gradlew test "-DdatabaseUsername=student" "-DdatabasePassword=student"
