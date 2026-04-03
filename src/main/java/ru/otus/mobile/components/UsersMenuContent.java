@@ -19,10 +19,8 @@ public class UsersMenuContent extends BaseMobileComponent<UsersMenuContent> {
   public UsersMenuItem findByName(String value) {
     for (SelenideElement item : items) {
       UsersMenuItem user = new UsersMenuItem(item);
-      try {
-        user.assertNameEqualsTo(value);
+      if (value.equals(user.getName())) {
         return user;
-      } catch (AssertionError ignored) {
       }
     }
     throw new AssertionError("User was not found in users list: " + value);

@@ -24,10 +24,8 @@ public class WishlistContent extends BaseMobileComponent<WishlistContent> {
   public WishlistCardComponent findByTitle(String title) {
     for (SelenideElement item : items) {
       WishlistCardComponent component = new WishlistCardComponent(item);
-      try {
-        component.assertTitleEqualsTo(title);
+      if (title.equals(component.getTitle())) {
         return component;
-      } catch (AssertionError ignored) {
       }
     }
     throw new AssertionError("Wishlist was not found by title: " + title);

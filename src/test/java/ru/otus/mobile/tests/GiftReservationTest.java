@@ -16,8 +16,8 @@ import ru.otus.mobile.support.MobileTest;
 @MobileTest
 class GiftReservationTest {
 
-  private static final String RESERVATION_WISHLIST_TITLE = "Travel wishlist";
-  private static final String RESERVATION_GIFT_TITLE = "Покемон";
+  private final String reservationWishlistTitle = "Travel wishlist";
+  private final String reservationGiftTitle = "Покемон";
 
   @Inject private TestUsersConfig usersConfig;
   @Inject private TestDataPreparer testDataPreparer;
@@ -40,10 +40,10 @@ class GiftReservationTest {
         filteredUsersPage.openUser(usersConfig.giftReservationOwnerUser().username());
 
     WishlistDetailsPage wishlistDetailsPage =
-        userWishlistsPage.openWishlist(RESERVATION_WISHLIST_TITLE);
+        userWishlistsPage.openWishlist(reservationWishlistTitle);
 
     wishlistDetailsPage
-        .reserveGift(RESERVATION_GIFT_TITLE)
-        .shouldShowReservedStatus(RESERVATION_GIFT_TITLE);
+        .reserveGift(reservationGiftTitle)
+        .shouldShowReservedStatus(reservationGiftTitle);
   }
 }

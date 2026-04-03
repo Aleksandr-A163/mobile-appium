@@ -1,6 +1,5 @@
 package ru.otus.mobile.components;
 
-import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 
 import com.codeborne.selenide.SelenideElement;
@@ -16,9 +15,8 @@ public class WishlistCardComponent extends BaseMobileComponent<WishlistCardCompo
     super(root);
   }
 
-  public WishlistCardComponent assertTitleEqualsTo(String value) {
-    title.shouldHave(exactText(value));
-    return this;
+  public String getTitle() {
+    return title.shouldBe(visible).getText();
   }
 
   public void clickEdit() {

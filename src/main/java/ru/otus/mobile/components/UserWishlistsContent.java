@@ -20,10 +20,8 @@ public class UserWishlistsContent extends BaseMobileComponent<UserWishlistsConte
   public UserWishlistItemComponent findByTitle(String value) {
     for (SelenideElement item : items) {
       UserWishlistItemComponent wishlist = new UserWishlistItemComponent(item);
-      try {
-        wishlist.assertTitleEqualsTo(value);
+      if (value.equals(wishlist.getTitle())) {
         return wishlist;
-      } catch (AssertionError ignored) {
       }
     }
     throw new AssertionError("Wishlist was not found in user wishlists: " + value);

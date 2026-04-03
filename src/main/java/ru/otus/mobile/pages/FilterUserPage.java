@@ -4,9 +4,15 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
 
 import com.codeborne.selenide.SelenideElement;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 
+@Singleton
 public class FilterUserPage extends AbsBasePage {
+
+  @Inject private Provider<UsersPage> usersPageProvider;
 
   private final SelenideElement filterRoot =
       $(AppiumBy.id("ru.otus.wishlist:id/users_filter_bottom_sheet"));
@@ -29,6 +35,6 @@ public class FilterUserPage extends AbsBasePage {
 
   public UsersPage apply() {
     applyButton.shouldBe(visible).click();
-    return new UsersPage().checkOpened();
+    return usersPageProvider.get().checkOpened();
   }
 }

@@ -23,10 +23,8 @@ public class GiftListContent extends BaseMobileComponent<GiftListContent> {
   public GiftCardComponent findByTitle(String title) {
     for (SelenideElement item : items) {
       GiftCardComponent component = new GiftCardComponent(item);
-      try {
-        component.assertTitleEqualsTo(title);
+      if (title.equals(component.getTitle())) {
         return component;
-      } catch (AssertionError ignored) {
       }
     }
     throw new AssertionError("Gift was not found by title: " + title);

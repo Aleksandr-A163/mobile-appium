@@ -16,18 +16,10 @@ import ru.otus.mobile.driver.MobileSessionContext;
 
 public class DriverExtension implements BeforeEachCallback, AfterEachCallback {
 
-  private static Injector injector;
-
-  private static synchronized Injector getOrCreateInjector() {
-    if (injector == null) {
-      injector = Guice.createInjector(new TestModule());
-    }
-    return injector;
-  }
+  private static final Injector injector = Guice.createInjector(new TestModule());
 
   @Override
   public void beforeEach(ExtensionContext context) {
-    Injector injector = getOrCreateInjector();
     injector.injectMembers(context.getRequiredTestInstance());
 
     EmulatorPool emulatorPool = injector.getInstance(EmulatorPool.class);
@@ -47,7 +39,6 @@ public class DriverExtension implements BeforeEachCallback, AfterEachCallback {
         Selenide.closeWebDriver();
       }
     } finally {
-      Injector injector = getOrCreateInjector();
       EmulatorPool emulatorPool = injector.getInstance(EmulatorPool.class);
       MobileSession session = MobileSessionContext.get();
       if (session != null) {

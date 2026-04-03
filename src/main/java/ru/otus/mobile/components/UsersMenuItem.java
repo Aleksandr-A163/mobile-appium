@@ -1,6 +1,6 @@
 package ru.otus.mobile.components;
 
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 
 import com.codeborne.selenide.SelenideElement;
 import io.appium.java_client.AppiumBy;
@@ -13,7 +13,7 @@ public class UsersMenuItem extends BaseMobileComponent<UsersMenuItem> {
     super(root);
   }
 
-  public void assertNameEqualsTo(String value) {
-    name.shouldHave(text(value));
+  public String getName() {
+    return name.shouldBe(visible).getText();
   }
 }

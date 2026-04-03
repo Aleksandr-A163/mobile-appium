@@ -4,10 +4,16 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.appium.SelenideAppium.$;
 
 import com.codeborne.selenide.SelenideElement;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import io.appium.java_client.AppiumBy;
 import ru.otus.mobile.components.UserWishlistsContent;
 
+@Singleton
 public class UserWishlistsPage extends AbsBasePage {
+
+  @Inject private Provider<WishlistDetailsPage> wishlistDetailsPageProvider;
 
   private final SelenideElement wishlistsRoot =
       $(AppiumBy.id("ru.otus.wishlist:id/wishlists_content"));
@@ -25,11 +31,11 @@ public class UserWishlistsPage extends AbsBasePage {
 
   public WishlistDetailsPage openWishlist(int index) {
     wishlists().get(index).clickItem();
-    return new WishlistDetailsPage().checkOpened();
+    return wishlistDetailsPageProvider.get().checkOpened();
   }
 
   public WishlistDetailsPage openWishlist(String title) {
     wishlists().findByTitle(title).clickItem();
-    return new WishlistDetailsPage().checkOpened();
+    return wishlistDetailsPageProvider.get().checkOpened();
   }
 }
