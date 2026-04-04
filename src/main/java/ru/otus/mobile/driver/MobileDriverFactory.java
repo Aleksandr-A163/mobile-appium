@@ -25,10 +25,14 @@ public class MobileDriverFactory {
             .setPlatformName(config.platformName())
             .setAutomationName(config.automationName())
             .setDeviceName(session.deviceName())
-            .setApp(config.appDownloadUrl())
             .setAppPackage(config.appPackage())
             .setAppActivity(config.appActivity())
             .autoGrantPermissions();
+
+    String appDownloadUrl = config.appDownloadUrl();
+    if (appDownloadUrl != null && !appDownloadUrl.isBlank()) {
+      options.setApp(appDownloadUrl);
+    }
 
     try {
       return new AndroidDriver(new URL(session.appiumServerUrl(config.appiumHost())), options);
