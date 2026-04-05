@@ -61,7 +61,7 @@ pipeline {
             steps {
                 sh '''
                   set -eux
-
+        
                   echo "Waiting for Android container..."
                   for i in $(seq 1 60); do
                     if docker ps --format '{{.Names}}' | grep -q '^android-emulator$'; then
@@ -69,7 +69,7 @@ pipeline {
                     fi
                     sleep 5
                   done
-
+        
                   echo "Waiting for emulator device..."
                   for i in $(seq 1 120); do
                     if docker exec android-emulator adb devices | grep -q "emulator-5554[[:space:]]*device"; then
@@ -77,19 +77,19 @@ pipeline {
                     fi
                     sleep 5
                   done
-
+        
                   echo "Waiting for boot completion..."
                   for i in $(seq 1 120); do
-                    BOOT_STATUS=$(docker exec android-emulator adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
+                    BOOT_STATUS=$(docker exec android-emulator adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\\r' || true)
                     if [ "$BOOT_STATUS" = "1" ]; then
                       break
                     fi
                     sleep 5
                   done
-
+        
                   echo "Waiting for Appium..."
                   for i in $(seq 1 60); do
-                    if curl -s http://localhost:4723/wd/hub/status >/dev/null; then
+                    if curl -fsS http://localhost:4723/status >/dev/null; then
                       break
                     fi
                     sleep 5
