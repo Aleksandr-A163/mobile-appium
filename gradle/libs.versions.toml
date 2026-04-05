@@ -7,6 +7,7 @@ slf4j = "2.0.13"
 postgresql = "42.7.3"
 logback = "1.5.6"
 spotless = "6.25.0"
+allure = "2.29.1"
 
 [libraries]
 selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
@@ -16,10 +17,10 @@ guice = { module = "com.google.inject:guice", version.ref = "guice" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+allure-junit5 = { module = "io.qameta.allure:allure-junit5", version.ref = "allure" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
