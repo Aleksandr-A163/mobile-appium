@@ -100,10 +100,7 @@ pipeline {
 
         stage('Install APK') {
             steps {
-                sh '''
-                  set -eux
-                  docker exec android-emulator adb install -r /root/tmp/apk/wishlist.apk || true
-                '''
+                echo 'Skipping manual APK install; tests will use app.download.url'
             }
         }
 
