@@ -16,6 +16,7 @@ public enum MobileSession {
   }
 
   public String appiumServerUrl(String appiumHost) {
-    return appiumHost + ":" + appiumPort;
+    String normalizedHost = appiumHost.endsWith("/") ? appiumHost.substring(0, appiumHost.length() - 1) : appiumHost;
+    return normalizedHost + ":" + appiumPort;
   }
 }

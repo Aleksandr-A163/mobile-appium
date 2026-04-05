@@ -25,7 +25,8 @@ pipeline {
     }
 
     environment {
-        APP_DOWNLOAD_URL = 'http://wiremock:8080/download/wishlist.apk'
+        APP_DOWNLOAD_URL = 'http://host.docker.internal:8089/download/wishlist.apk'
+        APPIUM_HOST = 'http://host.docker.internal'
     }
 
     stages {
@@ -61,7 +62,7 @@ pipeline {
             steps {
                 sh '''
                   set -eux
-        
+
                   echo "Waiting for Android container..."
                   for i in $(seq 1 60); do
                     if docker ps --format '{{.Names}}' | grep -q '^android-emulator$'; then
@@ -69,7 +70,7 @@ pipeline {
                     fi
                     sleep 5
                   done
-        
+
                   echo "Waiting for emulator device..."
                   for i in $(seq 1 120); do
                     if docker exec android-emulator adb devices | grep -q "emulator-5554[[:space:]]*device"; then
@@ -77,23 +78,39 @@ pipeline {
                     fi
                     sleep 5
                   done
-        
+
                   echo "Waiting for boot completion..."
+                  BOOT_OK=0
                   for i in $(seq 1 120); do
                     BOOT_STATUS=$(docker exec android-emulator adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\\r' || true)
                     if [ "$BOOT_STATUS" = "1" ]; then
+                      BOOT_OK=1
                       break
                     fi
                     sleep 5
                   done
-        
+
+                  if [ "$BOOT_OK" -ne 1 ]; then
+                    echo "Emulator boot did not complete"
+                    docker compose logs --no-color || true
+                    exit 1
+                  fi
+
                   echo "Waiting for Appium..."
+                  APP_OK=0
                   for i in $(seq 1 60); do
-                    if curl -fsS http://localhost:4723/status >/dev/null; then
+                    if curl -fsS "${APPIUM_HOST}:4723/status" >/dev/null; then
+                      APP_OK=1
                       break
                     fi
                     sleep 5
                   done
+
+                  if [ "$APP_OK" -ne 1 ]; then
+                    echo "Appium did not become ready"
+                    docker compose logs --no-color || true
+                    exit 1
+                  fi
                 '''
             }
         }
@@ -112,7 +129,8 @@ pipeline {
                   ./gradlew clean test \
                     -DdatabaseUsername="${DB_USERNAME}" \
                     -DdatabasePassword="${DB_PASSWORD}" \
-                    -Dapp.download.url="${APP_DOWNLOAD_URL}"
+                    -Dapp.download.url="${APP_DOWNLOAD_URL}" \
+                    -Dappium.host="${APPIUM_HOST}"
                 '''
             }
         }

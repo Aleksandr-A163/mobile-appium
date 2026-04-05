@@ -34,11 +34,13 @@ public class MobileDriverFactory {
       options.setApp(appDownloadUrl);
     }
 
+    String appiumUrl = session.appiumServerUrl(config.appiumHost());
+
     try {
-      return new AndroidDriver(new URL(session.appiumServerUrl(config.appiumHost())), options);
+      return new AndroidDriver(new URL(appiumUrl), options);
     } catch (MalformedURLException exception) {
       throw new IllegalStateException(
-          "Invalid Appium URL for session " + session.name(), exception);
+          "Invalid Appium URL: " + appiumUrl + " for session " + session.name(), exception);
     }
   }
 }
