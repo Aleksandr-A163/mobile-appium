@@ -25,7 +25,9 @@ pipeline {
     }
 
     environment {
-        APP_DOWNLOAD_URL = "${params.APK_URL}"
+        APP_DOWNLOAD_URL = "${params.APK_URL ?: 'https://raw.githubusercontent.com/Aleksandr-A163/mobile-appium/main/wiremock/__files/wishlist.apk'}"
+        DB_USERNAME_SAFE = "${params.DB_USERNAME ?: 'student'}"
+        DB_PASSWORD_SAFE = "${params.DB_PASSWORD ?: 'student'}"
         APPIUM_HOST = 'http://android-emulator'
         COMPOSE_NETWORK = 'mobile_tests_default'
     }
@@ -42,7 +44,7 @@ pipeline {
                 sh '''
                   set -eux
                   mkdir -p wiremock/__files
-                  curl -L "${APK_URL}" -o wiremock/__files/wishlist.apk
+                  curl -L "${APP_DOWNLOAD_URL}" -o wiremock/__files/wishlist.apk
                   ls -lah wiremock/__files
                 '''
             }
@@ -130,54 +132,14 @@ pipeline {
             }
         }
 
-        stage('Debug Appium session') {
-                steps {
-                    sh '''
-                      set -eux
-            
-                      echo "Appium status:"
-                      curl -s http://android-emulator:4723/status || true
-                      echo
-            
-                      cat > session.json <<EOF
-                {
-                  "capabilities": {
-                    "alwaysMatch": {
-                      "platformName": "ANDROID",
-                      "appium:automationName": "UiAutomator2",
-                      "appium:deviceName": "emulator-5554",
-                      "appium:appPackage": "ru.otus.wishlist",
-                      "appium:appActivity": "ru.otus.wishlist.MainActivity",
-                      "appium:autoGrantPermissions": true,
-                      "appium:app": "https://raw.githubusercontent.com/Aleksandr-A163/mobile-appium/main/wiremock/__files/wishlist.apk"
-                    }
-                  }
-                }
-                EOF
-            
-                      echo "session.json:"
-                      cat session.json
-            
-                      echo "Try create raw session:"
-                      curl -v -X POST http://android-emulator:4723/session \
-                        -H "Content-Type: application/json" \
-                        --data @session.json || true
-                      echo
-            
-                      echo "Android container logs:"
-                      docker logs android-emulator --tail 300 || true
-                    '''
-                }
-            }
-
-       stage('Run tests') {
+        stage('Run tests') {
             steps {
                 sh '''
                   set -eux
                   chmod +x gradlew
                   ./gradlew --no-daemon clean test \
-                    -DdatabaseUsername="${DB_USERNAME}" \
-                    -DdatabasePassword="${DB_PASSWORD}" \
+                    -DdatabaseUsername="${DB_USERNAME_SAFE}" \
+                    -DdatabasePassword="${DB_PASSWORD_SAFE}" \
                     -Dapp.download.url="${APP_DOWNLOAD_URL}" \
                     -Dappium.host="${APPIUM_HOST}"
                 '''
@@ -187,7 +149,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'build/reports/, build/allure-results/', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'build/reports/**, build/allure-results/**, docker-compose.log', allowEmptyArchive: true
 
             allure([
                 includeProperties: false,
@@ -199,8 +161,6 @@ pipeline {
               docker network disconnect "${COMPOSE_NETWORK}" jenkins || true
               docker compose down || true
             '''
-
-            archiveArtifacts artifacts: 'docker-compose.log', allowEmptyArchive: true
         }
     }
 }
