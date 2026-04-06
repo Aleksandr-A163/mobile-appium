@@ -35,6 +35,8 @@ public class MobileDriverFactory {
     }
 
     String appiumUrl = session.appiumServerUrl(config.appiumHost());
+    System.out.println("Resolved Appium URL = " + appiumUrl);
+    System.out.println("Resolved app URL = " + config.appDownloadUrl());
 
     try {
       return new AndroidDriver(new URL(appiumUrl), options);
