@@ -75,6 +75,8 @@ test {
   systemProperty 'databasePassword', System.getProperty('databasePassword', '')
   systemProperty 'app.download.url', System.getProperty('app.download.url', 'http://wiremock:8080/download/wishlist.apk')
 
+  systemProperty 'appium.host', System.getProperty('appium.host', 'http://127.0.0.1')
+
   testLogging {
     events 'passed', 'skipped', 'failed'
     exceptionFormat 'full'
