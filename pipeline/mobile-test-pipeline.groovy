@@ -25,8 +25,9 @@ pipeline {
     }
 
     environment {
-        APP_DOWNLOAD_URL = 'http://host.docker.internal:8089/download/wishlist.apk'
-        APPIUM_HOST = 'http://host.docker.internal'
+        APP_DOWNLOAD_URL = 'http://apk-wiremock:8080/download/wishlist.apk'
+        APPIUM_HOST = 'http://android-emulator'
+        COMPOSE_NETWORK = 'mobile_tests_default'
     }
 
     stages {
@@ -53,6 +54,7 @@ pipeline {
                   set -eux
                   docker compose down || true
                   docker compose up -d
+                  docker network connect "${COMPOSE_NETWORK}" jenkins || true
                   docker compose ps
                 '''
             }
@@ -96,6 +98,10 @@ pipeline {
                     exit 1
                   fi
 
+                  echo "Checking network resolution..."
+                  getent hosts android-emulator || true
+                  getent hosts apk-wiremock || true
+
                   echo "Waiting for Appium..."
                   APP_OK=0
                   for i in $(seq 1 60); do
@@ -111,6 +117,9 @@ pipeline {
                     docker compose logs --no-color || true
                     exit 1
                   fi
+
+                  echo "Checking APK endpoint..."
+                  curl -I "${APP_DOWNLOAD_URL}" || true
                 '''
             }
         }
@@ -121,12 +130,13 @@ pipeline {
             }
         }
 
-        stage('Run tests') {
+
+       stage('Run tests') {
             steps {
                 sh '''
                   set -eux
                   chmod +x gradlew
-                  ./gradlew clean test \
+                  ./gradlew --no-daemon clean test \
                     -DdatabaseUsername="${DB_USERNAME}" \
                     -DdatabasePassword="${DB_PASSWORD}" \
                     -Dapp.download.url="${APP_DOWNLOAD_URL}" \
@@ -138,7 +148,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'build/reports/**, build/allure-results/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'build/reports/, build/allure-results/', allowEmptyArchive: true
 
             allure([
                 includeProperties: false,
