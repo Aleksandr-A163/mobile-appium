@@ -25,7 +25,7 @@ pipeline {
     }
 
     environment {
-        APP_DOWNLOAD_URL = 'http://apk-wiremock:8080/download/wishlist.apk'
+        APP_DOWNLOAD_URL = "${params.APK_URL}"
         APPIUM_HOST = 'http://android-emulator'
         COMPOSE_NETWORK = 'mobile_tests_default'
     }
@@ -118,7 +118,7 @@ pipeline {
                     exit 1
                   fi
 
-                  echo "Checking APK endpoint..."
+                  echo "Using APK URL: ${APP_DOWNLOAD_URL}"
                   curl -I "${APP_DOWNLOAD_URL}" || true
                 '''
             }
@@ -157,6 +157,7 @@ pipeline {
 
             sh '''
               docker compose logs --no-color > docker-compose.log || true
+              docker network disconnect "${COMPOSE_NETWORK}" jenkins || true
               docker compose down || true
             '''
 
