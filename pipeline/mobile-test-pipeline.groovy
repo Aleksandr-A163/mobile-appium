@@ -131,39 +131,44 @@ pipeline {
         }
 
         stage('Debug Appium session') {
-            steps {
-                sh '''
-                  set -eux
-        
-                  echo "Appium status:"
-                  curl -s http://android-emulator:4723/status || true
-        
-                  echo "Try create raw session:"
-                  cat > session.json <<'EOF'
-        {
-          "capabilities": {
-            "alwaysMatch": {
-              "platformName": "ANDROID",
-              "appium:automationName": "UiAutomator2",
-              "appium:deviceName": "emulator-5554",
-              "appium:appPackage": "ru.otus.wishlist",
-              "appium:appActivity": "ru.otus.wishlist.MainActivity",
-              "appium:autoGrantPermissions": true,
-              "appium:app": "https://raw.githubusercontent.com/Aleksandr-A163/mobile-appium/main/wiremock/__files/wishlist.apk"
+                steps {
+                    sh '''
+                      set -eux
+            
+                      echo "Appium status:"
+                      curl -s http://android-emulator:4723/status || true
+                      echo
+            
+                      cat > session.json <<EOF
+                {
+                  "capabilities": {
+                    "alwaysMatch": {
+                      "platformName": "ANDROID",
+                      "appium:automationName": "UiAutomator2",
+                      "appium:deviceName": "emulator-5554",
+                      "appium:appPackage": "ru.otus.wishlist",
+                      "appium:appActivity": "ru.otus.wishlist.MainActivity",
+                      "appium:autoGrantPermissions": true,
+                      "appium:app": "https://raw.githubusercontent.com/Aleksandr-A163/mobile-appium/main/wiremock/__files/wishlist.apk"
+                    }
+                  }
+                }
+                EOF
+            
+                      echo "session.json:"
+                      cat session.json
+            
+                      echo "Try create raw session:"
+                      curl -v -X POST http://android-emulator:4723/session \
+                        -H "Content-Type: application/json" \
+                        --data @session.json || true
+                      echo
+            
+                      echo "Android container logs:"
+                      docker logs android-emulator --tail 300 || true
+                    '''
+                }
             }
-          }
-        }
-        EOF
-        
-                  curl -v -X POST http://android-emulator:4723/session \
-                    -H 'Content-Type: application/json' \
-                    --data @session.json || true
-        
-                  echo "Android container logs:"
-                  docker logs android-emulator --tail 300 || true
-                '''
-            }
-        }
 
        stage('Run tests') {
             steps {
